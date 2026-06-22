@@ -1,3 +1,5 @@
+import type { InquiryStatus } from "@/types";
+
 export const APP_NAME = "동네한바퀴";
 export const APP_SLOGAN = "오늘도 동네한바퀴";
 export const APP_SUB_SLOGAN = "오늘 밖에 나간 당신을 칭찬합니다";
@@ -70,3 +72,8 @@ export const NAV_ITEMS = [
   { href: "/ranking", label: "랭킹", icon: "Trophy" },
   { href: "/mypage", label: "마이", icon: "User" },
 ] as const;
+
+export const INQUIRY_STATUS_LABELS: Record<InquiryStatus, string> = {
+  pending: "답변 대기",
+  answered: "답변 완료",
+};

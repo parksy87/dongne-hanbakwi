@@ -91,3 +91,18 @@ export interface DailyQuote {
   date: string;
   text: string;
 }
+
+export type InquiryStatus = "pending" | "answered";
+
+export interface Inquiry {
+  id: string;
+  userId: string;
+  nickname: string;
+  email: string;
+  title: string;
+  content: string;
+  status: InquiryStatus;
+  answer?: string;
+  answeredAt?: Timestamp;
+  createdAt: Timestamp;
+}

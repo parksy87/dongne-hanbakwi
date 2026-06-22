@@ -48,7 +48,7 @@ export default function MyPage() {
   const menuItems = [
     { icon: User, label: "프로필 수정", action: () => setShowProfileModal(true) },
     { icon: Bell, label: "알림 설정", action: () => alert("준비 중입니다.") },
-    { icon: MessageCircle, label: "문의하기", action: () => alert("준비 중입니다.") },
+    { icon: MessageCircle, label: "문의하기", action: () => router.push("/inquiries") },
     { icon: LogOut, label: "로그아웃", action: handleLogout },
     { icon: Info, label: `앱 버전 v${APP_VERSION}`, action: () => {} },
   ];
