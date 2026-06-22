@@ -7,6 +7,7 @@ import FirebaseSetupNotice from "@/components/layout/FirebaseSetupNotice";
 import { signInWithGoogle } from "@/services/authService";
 import { useAuthStore } from "@/stores/authStore";
 import { APP_NAME, APP_SLOGAN, APP_SUB_SLOGAN } from "@/lib/constants";
+import { toastError } from "@/stores/toastStore";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     if (!isFirebaseReady) {
-      alert("Firebase 설정을 먼저 완료해주세요.");
+      toastError("Firebase 설정을 먼저 완료해주세요.");
       return;
     }
 
@@ -29,7 +30,7 @@ export default function LoginPage() {
       router.replace("/");
     } catch (error) {
       console.error("Login failed:", error);
-      alert("로그인에 실패했습니다. 다시 시도해주세요.");
+      toastError("로그인에 실패했습니다. 다시 시도해주세요.");
     }
   };
 

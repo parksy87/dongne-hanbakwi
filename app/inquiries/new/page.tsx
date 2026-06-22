@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { useAuthStore } from "@/stores/authStore";
 import { useCreateInquiry } from "@/hooks/useInquiries";
+import { toastSuccess, toastError } from "@/stores/toastStore";
 import { ArrowLeft } from "lucide-react";
 
 export default function NewInquiryPage() {
@@ -20,11 +21,11 @@ export default function NewInquiryPage() {
   const handleSubmit = async () => {
     if (!user || !firebaseUser) return;
     if (!title.trim()) {
-      alert("제목을 입력해주세요.");
+      toastError("제목을 입력해주세요.");
       return;
     }
     if (!content.trim()) {
-      alert("내용을 입력해주세요.");
+      toastError("내용을 입력해주세요.");
       return;
     }
 
@@ -36,11 +37,11 @@ export default function NewInquiryPage() {
         title: title.trim(),
         content: content.trim(),
       });
-      alert("문의가 등록되었습니다.");
+      toastSuccess("문의가 등록되었습니다.");
       router.replace("/inquiries");
     } catch (error) {
       console.error("Inquiry create failed:", error);
-      alert("문의 등록에 실패했습니다. 다시 시도해주세요.");
+      toastError("문의 등록에 실패했습니다. 다시 시도해주세요.");
     }
   };
 

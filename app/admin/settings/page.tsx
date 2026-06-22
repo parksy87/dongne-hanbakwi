@@ -5,6 +5,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { useAppSettingsAdmin, useUpdateSettings } from "@/hooks/useAdmin";
+import { toastSuccess, toastError } from "@/stores/toastStore";
 import { AppSettings } from "@/types";
 
 export default function AdminSettingsPage() {
@@ -27,9 +28,9 @@ export default function AdminSettingsPage() {
         dailyQuotes: form.dailyQuotes,
         attendanceRules: form.attendanceRules,
       });
-      alert("설정이 저장되었습니다.");
+      toastSuccess("설정이 저장되었습니다.");
     } catch {
-      alert("저장에 실패했습니다.");
+      toastError("저장에 실패했습니다.");
     }
   };
 

@@ -4,9 +4,11 @@ import { useState } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { useDailyQuote } from "@/hooks/useDailyQuote";
+import { useDailyQuotesPool } from "@/hooks/useAppSettings";
 
 export default function DailyQuoteCard() {
-  const { quote, saveQuote } = useDailyQuote();
+  const quotesPool = useDailyQuotesPool();
+  const { quote, saveQuote } = useDailyQuote(quotesPool);
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState("");
 

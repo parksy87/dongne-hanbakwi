@@ -7,16 +7,14 @@ import WorkoutMap from "@/components/map/WorkoutMap";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { useAuthStore } from "@/stores/authStore";
-import { useSaveWorkout } from "@/hooks/useWorkouts";
 import { useWorkoutStore } from "@/stores/workoutStore";
-import { markAttendance } from "@/services/attendanceService";
-import { updateUserStats, getUser } from "@/services/userService";
-import { checkAndAwardBadges } from "@/services/badgeService";
+import { useAttendanceRules } from "@/hooks/useAppSettings";
+import { completeWorkout } from "@/services/workoutCompleteService";
+import { toastSuccess, toastError } from "@/stores/toastStore";
 import {
   formatDistance,
   formatDuration,
   formatPace,
-  calculateLevel,
 } from "@/lib/utils";
 import { WORKOUT_TYPE_LABELS } from "@/lib/constants";
 import { WorkoutType, RoutePoint } from "@/types";
@@ -34,7 +32,7 @@ export default function WorkoutSummaryPage() {
   const router = useRouter();
   const { user, setUser } = useAuthStore();
   const { reset } = useWorkoutStore();
-  const saveWorkoutMutation = useSaveWorkout();
+  const attendanceRules = useAttendanceRules();
   const [memo, setMemo] = useState("");
   const [summary, setSummary] = useState<SummaryData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -53,7 +51,7 @@ export default function WorkoutSummaryPage() {
     setIsSaving(true);
 
     try {
-      await saveWorkoutMutation.mutateAsync({
+      const result = await completeWorkout({
         userId: user.uid,
         type: summary.type,
         distance: summary.distance,
@@ -62,35 +60,15 @@ export default function WorkoutSummaryPage() {
         calories: summary.calories,
         memo,
         route: summary.route,
+        attendanceRules,
       });
 
-      const attended = await markAttendance(
-        user.uid,
-        summary.type,
-        summary.duration,
-        summary.distance
-      );
+      setUser(result.updatedUser);
 
-      const newTotalDistance = user.totalDistance + summary.distance;
-      const newTotalDuration = user.totalDuration + summary.duration;
-      const newTotalCount = user.totalWorkoutCount + 1;
-
-      await updateUserStats(user.uid, {
-        totalDistance: newTotalDistance,
-        totalDuration: newTotalDuration,
-        totalWorkoutCount: newTotalCount,
-        level: calculateLevel(newTotalDistance),
-      });
-
-      const updatedUser = await getUser(user.uid);
-      if (updatedUser) {
-        setUser(updatedUser);
-        await checkAndAwardBadges(user.uid, {
-          totalDistance: newTotalDistance,
-          totalWorkoutCount: newTotalCount,
-          streak: updatedUser.streak,
-          isFirstAttendance: attended,
-        });
+      if (result.attended) {
+        toastSuccess("출석 완료! 오늘도 수고하셨어요.");
+      } else {
+        toastSuccess("운동 기록이 저장되었습니다.");
       }
 
       sessionStorage.removeItem("workoutSummary");
@@ -98,7 +76,7 @@ export default function WorkoutSummaryPage() {
       router.replace("/");
     } catch (error) {
       console.error("Save failed:", error);
-      alert("저장에 실패했습니다. 다시 시도해주세요.");
+      toastError("저장에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsSaving(false);
     }

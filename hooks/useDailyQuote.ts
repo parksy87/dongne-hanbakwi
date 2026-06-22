@@ -6,7 +6,8 @@ import { DAILY_QUOTES } from "@/lib/constants";
 
 const QUOTE_KEY = "daily_quote";
 
-export function useDailyQuote() {
+export function useDailyQuote(quotes?: string[]) {
+  const pool = quotes?.length ? quotes : DAILY_QUOTES;
   const [quote, setQuote] = useState("");
 
   useEffect(() => {
@@ -19,10 +20,13 @@ export function useDailyQuote() {
         return;
       }
     }
-    const randomQuote =
-      DAILY_QUOTES[Math.floor(Math.random() * DAILY_QUOTES.length)];
+    const randomQuote = pool[Math.floor(Math.random() * pool.length)];
+    localStorage.setItem(
+      QUOTE_KEY,
+      JSON.stringify({ date: today, text: randomQuote })
+    );
     setQuote(randomQuote);
-  }, []);
+  }, [pool.join("|")]);
 
   const saveQuote = (text: string) => {
     const today = getTodayDateString();

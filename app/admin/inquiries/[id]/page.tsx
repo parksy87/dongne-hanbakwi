@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { getInquiry } from "@/services/inquiryService";
 import { useAnswerInquiry } from "@/hooks/useAdmin";
+import { toastSuccess, toastError } from "@/stores/toastStore";
 import { Inquiry } from "@/types";
 import { INQUIRY_STATUS_LABELS } from "@/lib/constants";
 import { ArrowLeft } from "lucide-react";
@@ -29,15 +30,15 @@ export default function AdminInquiryDetailPage() {
 
   const handleSubmit = async () => {
     if (!inquiry || !answer.trim()) {
-      alert("답변을 입력해주세요.");
+      toastError("답변을 입력해주세요.");
       return;
     }
     try {
       await answerMutation.mutateAsync({ id: inquiry.id, answer: answer.trim() });
-      alert("답변이 등록되었습니다.");
+      toastSuccess("답변이 등록되었습니다.");
       router.push("/admin/inquiries");
     } catch {
-      alert("답변 등록에 실패했습니다.");
+      toastError("답변 등록에 실패했습니다.");
     }
   };
 

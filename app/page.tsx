@@ -12,12 +12,13 @@ import WorkoutTypeModal from "@/components/home/WorkoutTypeModal";
 import { useAuthStore } from "@/stores/authStore";
 import { useWeeklyWorkouts, useTodayAttendance } from "@/hooks/useWorkouts";
 import { useAnnouncements } from "@/hooks/useAnnouncements";
+import { useSlogans } from "@/hooks/useAppSettings";
 import { WorkoutType } from "@/types";
-import { APP_SUB_SLOGAN } from "@/lib/constants";
 
 export default function HomePage() {
   const router = useRouter();
   const { user } = useAuthStore();
+  const { sub: subSlogan } = useSlogans();
   const [showModal, setShowModal] = useState(false);
 
   const { data: weeklyWorkouts = [] } = useWeeklyWorkouts(user?.uid);
@@ -42,7 +43,7 @@ export default function HomePage() {
     <AuthGuard>
       <div className="page-container">
         <Header />
-        <p className="text-sm text-gray-500 mb-4 -mt-2">{APP_SUB_SLOGAN}</p>
+        <p className="text-sm text-gray-500 mb-4 -mt-2">{subSlogan}</p>
 
         <AnnouncementBanner announcements={announcements} />
 

@@ -12,6 +12,7 @@ import {
   useDeleteAnnouncement,
 } from "@/hooks/useAdmin";
 import { useAuthStore } from "@/stores/authStore";
+import { toastError } from "@/stores/toastStore";
 
 export default function AdminAnnouncementsPage() {
   const { firebaseUser } = useAuthStore();
@@ -64,7 +65,7 @@ export default function AdminAnnouncementsPage() {
       }
       setModalOpen(false);
     } catch {
-      alert("저장에 실패했습니다.");
+      toastError("저장에 실패했습니다.");
     }
   };
 

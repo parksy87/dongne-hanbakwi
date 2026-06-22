@@ -12,7 +12,7 @@ service cloud.firestore {
         && request.auth.uid == adminId
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.role == "admin"
-        && request.auth.token.email == "psyr7805@gmail.com";
+        && !exists(/databases/$(database)/documents/admins/$(adminId));
       allow update, delete: if false;
     }
 

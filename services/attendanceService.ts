@@ -11,15 +11,17 @@ import { Attendance } from "@/types";
 import { getTodayDateString, getYesterdayDateString } from "@/lib/utils";
 import { updateUserStats } from "./userService";
 import { ATTENDANCE_RULES } from "@/lib/constants";
-import { WorkoutType } from "@/types";
+import { AttendanceRules, WorkoutType } from "@/types";
 
 export function checkAttendanceEligibility(
   type: WorkoutType,
   duration: number,
-  distance: number
+  distance: number,
+  rules?: AttendanceRules
 ): boolean {
-  const rules = ATTENDANCE_RULES[type];
-  return duration >= rules.minDuration || distance >= rules.minDistance;
+  const activeRules = rules ?? ATTENDANCE_RULES;
+  const rule = activeRules[type];
+  return duration >= rule.minDuration || distance >= rule.minDistance;
 }
 
 export async function getTodayAttendance(userId: string): Promise<Attendance | null> {

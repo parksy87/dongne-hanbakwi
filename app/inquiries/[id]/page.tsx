@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import { useAuthStore } from "@/stores/authStore";
 import { useDeleteInquiry } from "@/hooks/useInquiries";
 import { getInquiry } from "@/services/inquiryService";
+import { toastError } from "@/stores/toastStore";
 import { Inquiry } from "@/types";
 import { INQUIRY_STATUS_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -44,7 +45,7 @@ export default function InquiryDetailPage() {
       router.replace("/inquiries");
     } catch (error) {
       console.error("Delete failed:", error);
-      alert("삭제에 실패했습니다.");
+      toastError("삭제에 실패했습니다.");
     }
   };
 
