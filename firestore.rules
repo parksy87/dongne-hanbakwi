@@ -1,40 +1,71 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    match /admins/{adminId} {
+      allow read: if request.auth != null && request.auth.uid == adminId;
+      allow write: if false;
+    }
+
     match /users/{userId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && request.auth.uid == userId;
+      allow update: if (request.auth != null && request.auth.uid == userId) || isAdmin();
     }
 
     match /workouts/{workoutId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update, delete: if (request.auth != null && resource.data.userId == request.auth.uid) || isAdmin();
     }
 
     match /attendance/{attendanceId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow delete: if isAdmin();
     }
 
     match /badges/{badgeId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null
+        && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if (request.auth != null && request.resource.data.userId == request.auth.uid)
+        || isAdmin();
+      allow delete: if isAdmin();
     }
 
     match /inquiries/{inquiryId} {
-      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null
+        && (resource.data.userId == request.auth.uid || isAdmin());
       allow create: if request.auth != null
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.status == "pending";
-      allow update: if request.auth != null
+      allow update: if isAdmin()
+        || (request.auth != null
+          && resource.data.userId == request.auth.uid
+          && resource.data.status == "pending"
+          && request.resource.data.status == "pending");
+      allow delete: if (request.auth != null
         && resource.data.userId == request.auth.uid
-        && resource.data.status == "pending"
-        && request.resource.data.status == "pending";
-      allow delete: if request.auth != null
-        && resource.data.userId == request.auth.uid
-        && resource.data.status == "pending";
+        && resource.data.status == "pending") || isAdmin();
+    }
+
+    match /announcements/{announcementId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    match /app_settings/{docId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    match /ranking_exclusions/{exclusionId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
     }
   }
 }

@@ -10,6 +10,8 @@ import { RankingEntry } from "@/types";
 import { getWeekStart, getMonthStart } from "@/lib/utils";
 import { doc, getDoc } from "firebase/firestore";
 
+import { getExcludedUserIds } from "./rankingExclusionService";
+
 type Period = "weekly" | "monthly";
 
 async function getUserInfo(userId: string) {
@@ -36,8 +38,11 @@ export async function getRanking(period: Period): Promise<RankingEntry[]> {
     distanceMap.set(data.userId, current + (data.distance || 0));
   });
 
+  const excludedIds = await getExcludedUserIds();
+
   const entries: RankingEntry[] = [];
   for (const [userId, totalDistance] of distanceMap) {
+    if (excludedIds.has(userId)) continue;
     const userInfo = await getUserInfo(userId);
     entries.push({
       userId,

@@ -10,6 +10,7 @@ import Modal from "@/components/ui/Modal";
 import BadgeGrid from "@/components/mypage/BadgeGrid";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserBadges } from "@/hooks/useWorkouts";
+import { useIsAdmin } from "@/hooks/useAdmin";
 import { signOut } from "@/services/authService";
 import { updateUserProfile } from "@/services/userService";
 import {
@@ -24,12 +25,14 @@ import {
   MessageCircle,
   LogOut,
   Info,
+  Shield,
 } from "lucide-react";
 
 export default function MyPage() {
   const router = useRouter();
-  const { user, setUser, reset } = useAuthStore();
+  const { user, setUser, reset, firebaseUser } = useAuthStore();
   const { data: badges = [] } = useUserBadges(user?.uid);
+  const { data: isAdmin } = useIsAdmin(firebaseUser?.uid);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname || "");
 
@@ -49,6 +52,9 @@ export default function MyPage() {
     { icon: User, label: "프로필 수정", action: () => setShowProfileModal(true) },
     { icon: Bell, label: "알림 설정", action: () => alert("준비 중입니다.") },
     { icon: MessageCircle, label: "문의하기", action: () => router.push("/inquiries") },
+    ...(isAdmin
+      ? [{ icon: Shield, label: "관리자", action: () => router.push("/admin") }]
+      : []),
     { icon: LogOut, label: "로그아웃", action: handleLogout },
     { icon: Info, label: `앱 버전 v${APP_VERSION}`, action: () => {} },
   ];

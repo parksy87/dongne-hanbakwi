@@ -16,7 +16,7 @@ const iconMap = {
 export default function BottomNav() {
   const pathname = usePathname();
 
-  const hiddenPaths = ["/login", "/workout"];
+  const hiddenPaths = ["/login", "/workout", "/admin"];
   if (hiddenPaths.some((p) => pathname.startsWith(p))) return null;
 
   return (

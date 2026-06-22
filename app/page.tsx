@@ -7,9 +7,11 @@ import Header from "@/components/layout/Header";
 import AttendanceCard from "@/components/home/AttendanceCard";
 import WeeklyStatsCard from "@/components/home/WeeklyStatsCard";
 import DailyQuoteCard from "@/components/home/DailyQuoteCard";
+import AnnouncementBanner from "@/components/home/AnnouncementBanner";
 import WorkoutTypeModal from "@/components/home/WorkoutTypeModal";
 import { useAuthStore } from "@/stores/authStore";
 import { useWeeklyWorkouts, useTodayAttendance } from "@/hooks/useWorkouts";
+import { useAnnouncements } from "@/hooks/useAnnouncements";
 import { WorkoutType } from "@/types";
 import { APP_SUB_SLOGAN } from "@/lib/constants";
 
@@ -20,6 +22,7 @@ export default function HomePage() {
 
   const { data: weeklyWorkouts = [] } = useWeeklyWorkouts(user?.uid);
   const { data: isAttended = false } = useTodayAttendance(user?.uid);
+  const { data: announcements = [] } = useAnnouncements();
 
   const weeklyStats = weeklyWorkouts.reduce(
     (acc, w) => ({
@@ -40,6 +43,8 @@ export default function HomePage() {
       <div className="page-container">
         <Header />
         <p className="text-sm text-gray-500 mb-4 -mt-2">{APP_SUB_SLOGAN}</p>
+
+        <AnnouncementBanner announcements={announcements} />
 
         <AttendanceCard
           isAttended={isAttended}

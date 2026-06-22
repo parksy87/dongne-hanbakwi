@@ -1,0 +1,77 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import { getInquiry } from "@/services/inquiryService";
+import { useAnswerInquiry } from "@/hooks/useAdmin";
+import { Inquiry } from "@/types";
+import { INQUIRY_STATUS_LABELS } from "@/lib/constants";
+import { ArrowLeft } from "lucide-react";
+
+export default function AdminInquiryDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const answerMutation = useAnswerInquiry();
+  const [inquiry, setInquiry] = useState<Inquiry | null>(null);
+  const [answer, setAnswer] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getInquiry(params.id as string).then((data) => {
+      setInquiry(data);
+      setAnswer(data?.answer || "");
+      setLoading(false);
+    });
+  }, [params.id]);
+
+  const handleSubmit = async () => {
+    if (!inquiry || !answer.trim()) {
+      alert("답변을 입력해주세요.");
+      return;
+    }
+    try {
+      await answerMutation.mutateAsync({ id: inquiry.id, answer: answer.trim() });
+      alert("답변이 등록되었습니다.");
+      router.push("/admin/inquiries");
+    } catch {
+      alert("답변 등록에 실패했습니다.");
+    }
+  };
+
+  if (loading) return <p className="text-gray-500 py-12 text-center">로딩 중...</p>;
+  if (!inquiry) return <p className="text-gray-500 py-12 text-center">문의를 찾을 수 없습니다.</p>;
+
+  return (
+    <div>
+      <button onClick={() => router.back()} className="flex items-center gap-1 text-secondary mb-4">
+        <ArrowLeft size={20} /><span className="font-medium">목록</span>
+      </button>
+
+      <h1 className="text-xl font-bold text-secondary mb-2">{inquiry.title}</h1>
+      <p className="text-sm text-gray-500 mb-6">
+        {INQUIRY_STATUS_LABELS[inquiry.status]} · {inquiry.nickname} · {inquiry.email}
+      </p>
+
+      <Card className="mb-4">
+        <h3 className="text-sm font-bold mb-2">문의 내용</h3>
+        <p className="leading-relaxed whitespace-pre-wrap">{inquiry.content}</p>
+      </Card>
+
+      <Card className="mb-6">
+        <h3 className="text-sm font-bold mb-2">답변 작성</h3>
+        <textarea
+          value={answer}
+          onChange={(e) => setAnswer(e.target.value)}
+          className="w-full p-3 bg-gray rounded-xl h-40 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+          placeholder="답변을 입력하세요"
+        />
+      </Card>
+
+      <Button size="lg" fullWidth onClick={handleSubmit} disabled={answerMutation.isPending}>
+        {answerMutation.isPending ? "저장 중..." : "답변 저장"}
+      </Button>
+    </div>
+  );
+}

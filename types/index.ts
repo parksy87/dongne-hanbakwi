@@ -17,6 +17,8 @@ export interface User {
   totalDistance: number;
   totalDuration: number;
   totalWorkoutCount: number;
+  isSuspended?: boolean;
+  suspendedReason?: string;
   createdAt: Timestamp;
 }
 
@@ -105,4 +107,61 @@ export interface Inquiry {
   answer?: string;
   answeredAt?: Timestamp;
   createdAt: Timestamp;
+}
+
+export interface Admin {
+  uid: string;
+  email: string;
+  role: "admin" | "super";
+  createdAt: Timestamp;
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  isPinned: boolean;
+  isActive: boolean;
+  createdBy: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface AttendanceRules {
+  walking: { minDuration: number; minDistance: number };
+  strolling: { minDuration: number; minDistance: number };
+  running: { minDuration: number; minDistance: number };
+}
+
+export interface AppSettings {
+  attendanceRules: AttendanceRules;
+  slogans: { main: string; sub: string };
+  dailyQuotes: string[];
+  maintenanceMode: boolean;
+  maintenanceMessage: string;
+  appVersion: string;
+  updatedAt: Timestamp;
+}
+
+export interface RankingExclusion {
+  id: string;
+  userId: string;
+  nickname: string;
+  reason: string;
+  excludedBy: string;
+  createdAt: Timestamp;
+}
+
+export interface DashboardStats {
+  totalUsers: number;
+  todayAttendance: number;
+  todayWorkouts: number;
+  pendingInquiries: number;
+  weeklyWorkouts: number;
+  totalDistance: number;
+}
+
+export interface AdminBadgeRecord extends Badge {
+  id: string;
+  nickname?: string;
 }

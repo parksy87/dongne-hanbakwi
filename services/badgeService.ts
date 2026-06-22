@@ -4,6 +4,8 @@ import {
   getDocs,
   query,
   where,
+  orderBy,
+  limit,
   serverTimestamp,
 } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
@@ -14,6 +16,13 @@ export async function getUserBadges(userId: string): Promise<Badge[]> {
   const q = query(collection(getFirebaseDb(), "badges"), where("userId", "==", userId));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => d.data() as Badge);
+}
+
+export async function getAllBadges(limitCount = 200): Promise<(Badge & { id: string })[]> {
+  const snapshot = await getDocs(
+    query(collection(getFirebaseDb(), "badges"), orderBy("createdAt", "desc"), limit(limitCount))
+  );
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Badge & { id: string });
 }
 
 export async function hasBadge(userId: string, badgeType: string): Promise<boolean> {

@@ -9,6 +9,7 @@ import {
   serverTimestamp,
   Timestamp,
   doc,
+  limit,
 } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { Workout, WorkoutType, RoutePoint } from "@/types";
@@ -70,4 +71,14 @@ export async function getWeeklyWorkouts(userId: string): Promise<Workout[]> {
   weekStart.setDate(diff);
   weekStart.setHours(0, 0, 0, 0);
   return getWorkoutsInRange(userId, weekStart, now);
+}
+
+export async function getAllWorkouts(limitCount = 100): Promise<Workout[]> {
+  const q = query(
+    collection(getFirebaseDb(), "workouts"),
+    orderBy("createdAt", "desc"),
+    limit(limitCount)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Workout);
 }

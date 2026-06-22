@@ -6,6 +6,7 @@ import {
   deleteDoc,
   query,
   where,
+  orderBy,
   serverTimestamp,
   doc,
 } from "firebase/firestore";
@@ -52,4 +53,33 @@ export async function getUserInquiries(userId: string): Promise<Inquiry[]> {
 
 export async function deleteInquiry(id: string): Promise<void> {
   await deleteDoc(doc(getFirebaseDb(), "inquiries", id));
+}
+
+export async function getAllInquiries(): Promise<Inquiry[]> {
+  const snapshot = await getDocs(
+    query(collection(getFirebaseDb(), "inquiries"), orderBy("createdAt", "desc"))
+  );
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Inquiry);
+}
+
+export async function getPendingInquiries(): Promise<Inquiry[]> {
+  const q = query(
+    collection(getFirebaseDb(), "inquiries"),
+    where("status", "==", "pending"),
+    orderBy("createdAt", "desc")
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Inquiry);
+}
+
+export async function answerInquiry(
+  id: string,
+  answer: string
+): Promise<void> {
+  const { updateDoc, serverTimestamp: ts } = await import("firebase/firestore");
+  await updateDoc(doc(getFirebaseDb(), "inquiries", id), {
+    status: "answered",
+    answer,
+    answeredAt: ts(),
+  });
 }
