@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import AdminHeader from "@/components/admin/AdminHeader";
 import { getInquiry } from "@/services/inquiryService";
 import { useAnswerInquiry } from "@/hooks/useAdmin";
 import { Inquiry } from "@/types";
@@ -45,14 +46,14 @@ export default function AdminInquiryDetailPage() {
 
   return (
     <div>
-      <button onClick={() => router.back()} className="flex items-center gap-1 text-secondary mb-4">
-        <ArrowLeft size={20} /><span className="font-medium">목록</span>
+      <button onClick={() => router.back()} className="flex items-center gap-1 text-secondary mb-4 text-sm hover:underline">
+        <ArrowLeft size={16} /><span>목록으로</span>
       </button>
 
-      <h1 className="text-xl font-bold text-secondary mb-2">{inquiry.title}</h1>
-      <p className="text-sm text-gray-500 mb-6">
-        {INQUIRY_STATUS_LABELS[inquiry.status]} · {inquiry.nickname} · {inquiry.email}
-      </p>
+      <AdminHeader
+        title={inquiry.title}
+        description={`${INQUIRY_STATUS_LABELS[inquiry.status]} · ${inquiry.nickname} · ${inquiry.email}`}
+      />
 
       <Card className="mb-4">
         <h3 className="text-sm font-bold mb-2">문의 내용</h3>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
+import AdminHeader from "@/components/admin/AdminHeader";
 import {
   useAdminAnnouncements,
   useCreateAnnouncement,
@@ -69,8 +70,8 @@ export default function AdminAnnouncementsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-secondary">공지 관리</h1>
+      <AdminHeader title="공지 관리" description="앱 공지사항을 작성하고 관리합니다." />
+      <div className="flex justify-end mb-6">
         <Button size="md" onClick={openCreate}>공지 작성</Button>
       </div>
 

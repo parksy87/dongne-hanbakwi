@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import { getAllBadges, getBadgeInfo } from "@/services/badgeService";
 import { useAwardBadgeAdmin, useDeleteBadgeAdmin, useAdminUsers } from "@/hooks/useAdmin";
 import { BADGE_DEFINITIONS } from "@/lib/constants";
+import AdminHeader from "@/components/admin/AdminHeader";
 import { AdminBadgeRecord } from "@/types";
 
 export default function AdminBadgesPage() {
@@ -43,7 +44,7 @@ export default function AdminBadgesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-secondary mb-6">배지 관리</h1>
+      <AdminHeader title="배지 관리" description="배지 수동 지급 및 회수" />
 
       <Card className="mb-6 space-y-3">
         <h3 className="font-bold text-secondary">배지 수동 지급</h3>

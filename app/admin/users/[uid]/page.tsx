@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import Card from "@/components/ui/Card";
+import AdminHeader from "@/components/admin/AdminHeader";
 import { useAdminUsers, useAdminUserDetail } from "@/hooks/useAdmin";
 import { formatDistance, formatDuration, formatPace } from "@/lib/utils";
 import { WORKOUT_TYPE_LABELS } from "@/lib/constants";
@@ -17,8 +18,10 @@ export default function AdminUserDetailPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-secondary mb-2">{user?.nickname || "사용자"}</h1>
-      <p className="text-sm text-gray-500 mb-6">{user?.email} · {uid}</p>
+      <AdminHeader
+        title={user?.nickname || "사용자"}
+        description={`${user?.email || ""} · ${uid}`}
+      />
 
       <div className="grid grid-cols-2 gap-3 mb-6">
         <Card padding="sm">

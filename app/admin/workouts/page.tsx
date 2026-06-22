@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import AdminHeader from "@/components/admin/AdminHeader";
 import { getAllWorkouts } from "@/services/workoutService";
 import { useDeleteWorkoutAdmin } from "@/hooks/useAdmin";
 import { Workout } from "@/types";
@@ -29,7 +30,7 @@ export default function AdminWorkoutsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-secondary mb-6">운동 기록 관리</h1>
+      <AdminHeader title="운동 기록 관리" description="전체 운동 기록 조회 및 삭제" />
 
       {loading ? (
         <p className="text-center text-gray-500 py-12">로딩 중...</p>

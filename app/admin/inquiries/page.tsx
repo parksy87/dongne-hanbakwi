@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Card from "@/components/ui/Card";
 import Tabs from "@/components/ui/Tabs";
+import AdminHeader from "@/components/admin/AdminHeader";
 import { useAdminInquiries } from "@/hooks/useAdmin";
 import { INQUIRY_STATUS_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,7 @@ export default function AdminInquiriesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-secondary mb-6">문의 관리</h1>
+      <AdminHeader title="문의 관리" description="1:1 문의를 확인하고 답변합니다." />
 
       <Tabs
         items={[

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import AdminHeader from "@/components/admin/AdminHeader";
 import { useAppSettingsAdmin, useUpdateSettings } from "@/hooks/useAdmin";
 import { AppSettings } from "@/types";
 
@@ -36,7 +37,7 @@ export default function AdminSettingsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-secondary mb-6">앱 설정</h1>
+      <AdminHeader title="앱 설정" description="슬로건, 출석 조건, 점검 모드 등" />
 
       <Card className="mb-4 space-y-4">
         <h3 className="font-bold">슬로건</h3>

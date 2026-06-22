@@ -4,6 +4,7 @@ import { useState } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Tabs from "@/components/ui/Tabs";
+import AdminHeader from "@/components/admin/AdminHeader";
 import {
   useAdminRanking,
   useRankingExclusionsAdmin,
@@ -41,7 +42,7 @@ export default function AdminRankingPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-secondary mb-6">랭킹 관리</h1>
+      <AdminHeader title="랭킹 관리" description="랭킹 조회 및 부정행위 사용자 제외" />
 
       <Tabs
         items={[
@@ -53,18 +54,22 @@ export default function AdminRankingPage() {
         className="mb-6"
       />
 
-      <h3 className="font-bold text-secondary mb-3">현재 랭킹 TOP 10</h3>
-      <div className="space-y-2 mb-8">
-        {ranking.slice(0, 10).map((entry) => (
-          <Card key={entry.userId} padding="sm" className="flex justify-between">
-            <span>{entry.rank}. {entry.nickname}</span>
-            <span className="font-bold">{formatDistance(entry.totalDistance)}</span>
-          </Card>
-        ))}
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <h3 className="font-bold text-secondary mb-3">현재 랭킹 TOP 10</h3>
+          <div className="space-y-2">
+            {ranking.slice(0, 10).map((entry) => (
+              <Card key={entry.userId} padding="sm" className="flex justify-between">
+                <span>{entry.rank}. {entry.nickname}</span>
+                <span className="font-bold">{formatDistance(entry.totalDistance)}</span>
+              </Card>
+            ))}
+          </div>
+        </div>
 
-      <h3 className="font-bold text-secondary mb-3">랭킹 제외 사용자</h3>
-      <Card className="mb-4 space-y-3">
+        <div>
+          <h3 className="font-bold text-secondary mb-3">랭킹 제외 사용자</h3>
+          <Card className="mb-4 space-y-3">
         <select
           value={excludeUid}
           onChange={(e) => setExcludeUid(e.target.value)}
@@ -82,20 +87,22 @@ export default function AdminRankingPage() {
           className="w-full p-3 bg-gray rounded-xl"
         />
         <Button size="md" fullWidth onClick={handleExclude}>랭킹에서 제외</Button>
-      </Card>
-
-      <div className="space-y-2">
-        {exclusions.map((e) => (
-          <Card key={e.id} padding="sm" className="flex justify-between items-center">
-            <div>
-              <p className="font-medium">{e.nickname}</p>
-              <p className="text-xs text-gray-500">{e.reason}</p>
-            </div>
-            <Button size="sm" variant="outline" onClick={() => removeExclusion.mutate(e.id)}>
-              해제
-            </Button>
           </Card>
-        ))}
+
+          <div className="space-y-2">
+            {exclusions.map((e) => (
+              <Card key={e.id} padding="sm" className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">{e.nickname}</p>
+                  <p className="text-xs text-gray-500">{e.reason}</p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => removeExclusion.mutate(e.id)}>
+                  해제
+                </Button>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

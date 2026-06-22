@@ -1,6 +1,7 @@
 "use client";
 
 import Card from "@/components/ui/Card";
+import AdminHeader from "@/components/admin/AdminHeader";
 import { useDashboardStats } from "@/hooks/useAdmin";
 import { formatDistance } from "@/lib/utils";
 
@@ -25,8 +26,8 @@ export default function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-secondary mb-6">대시보드</h1>
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      <AdminHeader title="대시보드" description="서비스 운영 현황을 한눈에 확인합니다." />
+      <div className="admin-card-grid">
         {cards.map((card) => (
           <Card key={card.label}>
             <p className="text-sm text-gray-500 mb-1">{card.label}</p>
