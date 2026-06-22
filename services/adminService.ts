@@ -18,6 +18,22 @@ export async function checkIsAdmin(uid: string): Promise<boolean> {
   return adminDoc.exists();
 }
 
+export async function bootstrapAdmin(uid: string, email: string): Promise<boolean> {
+  const isAdmin = await checkIsAdmin(uid);
+  if (isAdmin) return true;
+
+  const allowedEmail = process.env.NEXT_PUBLIC_BOOTSTRAP_ADMIN_EMAIL || "psyr7805@gmail.com";
+  if (email !== allowedEmail) return false;
+
+  const { setDoc, serverTimestamp } = await import("firebase/firestore");
+  await setDoc(doc(getFirebaseDb(), "admins", uid), {
+    email,
+    role: "admin",
+    createdAt: serverTimestamp(),
+  });
+  return true;
+}
+
 export async function getDashboardStats(): Promise<DashboardStats> {
   const db = getFirebaseDb();
   const todayStart = new Date();

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { subscribeToAuth } from "@/services/authService";
 import { getOrCreateUser } from "@/services/userService";
+import { bootstrapAdmin } from "@/services/adminService";
 import { useAuthStore } from "@/stores/authStore";
 import { isFirebaseConfigured } from "@/lib/firebase";
 
@@ -32,11 +33,12 @@ export function useAuth() {
     try {
       const unsubscribe = subscribeToAuth(async (fbUser) => {
         setFirebaseUser(fbUser);
-        if (fbUser) {
-          try {
-            const userData = await getOrCreateUser(fbUser);
-            setUser(userData);
-          } catch (error) {
+      if (fbUser) {
+        try {
+          await bootstrapAdmin(fbUser.uid, fbUser.email || "");
+          const userData = await getOrCreateUser(fbUser);
+          setUser(userData);
+        } catch (error) {
             console.error("Failed to load user:", error);
           }
         } else {
