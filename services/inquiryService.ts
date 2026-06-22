@@ -6,7 +6,6 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
   serverTimestamp,
   doc,
 } from "firebase/firestore";
@@ -37,11 +36,18 @@ export async function getInquiry(id: string): Promise<Inquiry | null> {
 export async function getUserInquiries(userId: string): Promise<Inquiry[]> {
   const q = query(
     collection(getFirebaseDb(), "inquiries"),
-    where("userId", "==", userId),
-    orderBy("createdAt", "desc")
+    where("userId", "==", userId)
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Inquiry);
+  const inquiries = snapshot.docs.map(
+    (d) => ({ id: d.id, ...d.data() }) as Inquiry
+  );
+
+  return inquiries.sort((a, b) => {
+    const aTime = a.createdAt?.toMillis?.() ?? 0;
+    const bTime = b.createdAt?.toMillis?.() ?? 0;
+    return bTime - aTime;
+  });
 }
 
 export async function deleteInquiry(id: string): Promise<void> {

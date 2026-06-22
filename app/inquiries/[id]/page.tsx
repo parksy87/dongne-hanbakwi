@@ -16,7 +16,7 @@ import { ArrowLeft } from "lucide-react";
 export default function InquiryDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useAuthStore();
+  const { user, firebaseUser } = useAuthStore();
   const deleteInquiry = useDeleteInquiry();
 
   const [inquiry, setInquiry] = useState<Inquiry | null>(null);
@@ -25,7 +25,7 @@ export default function InquiryDetailPage() {
   useEffect(() => {
     const load = async () => {
       const data = await getInquiry(params.id as string);
-      if (data && data.userId !== user?.uid) {
+      if (data && data.userId !== firebaseUser?.uid) {
         setInquiry(null);
       } else {
         setInquiry(data);
@@ -33,7 +33,7 @@ export default function InquiryDetailPage() {
       setLoading(false);
     };
     if (user) load();
-  }, [params.id, user]);
+  }, [params.id, user, firebaseUser]);
 
   const handleDelete = async () => {
     if (!inquiry || !user) return;

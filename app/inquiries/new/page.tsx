@@ -11,14 +11,14 @@ import { ArrowLeft } from "lucide-react";
 
 export default function NewInquiryPage() {
   const router = useRouter();
-  const { user } = useAuthStore();
+  const { user, firebaseUser } = useAuthStore();
   const createInquiry = useCreateInquiry();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
   const handleSubmit = async () => {
-    if (!user) return;
+    if (!user || !firebaseUser) return;
     if (!title.trim()) {
       alert("제목을 입력해주세요.");
       return;
@@ -30,7 +30,7 @@ export default function NewInquiryPage() {
 
     try {
       await createInquiry.mutateAsync({
-        userId: user.uid,
+        userId: firebaseUser.uid,
         nickname: user.nickname,
         email: user.email,
         title: title.trim(),

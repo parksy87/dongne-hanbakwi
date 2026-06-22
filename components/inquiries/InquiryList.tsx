@@ -46,7 +46,7 @@ export default function InquiryList({ inquiries }: InquiryListProps) {
                         : "bg-gray text-gray-500"
                     )}
                   >
-                    {INQUIRY_STATUS_LABELS[inquiry.status]}
+                    {INQUIRY_STATUS_LABELS[inquiry.status] ?? "답변 대기"}
                   </span>
                   <span className="text-xs text-gray-400">
                     {formatInquiryDate(inquiry)}

@@ -5,14 +5,21 @@ import AuthGuard from "@/components/layout/AuthGuard";
 import Header from "@/components/layout/Header";
 import InquiryList from "@/components/inquiries/InquiryList";
 import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserInquiries } from "@/hooks/useInquiries";
 import { PenLine } from "lucide-react";
 
 export default function InquiriesPage() {
   const router = useRouter();
-  const { user } = useAuthStore();
-  const { data: inquiries = [], isLoading } = useUserInquiries(user?.uid);
+  const { firebaseUser } = useAuthStore();
+  const {
+    data: inquiries,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useUserInquiries(firebaseUser?.uid);
 
   return (
     <AuthGuard>
@@ -37,8 +44,21 @@ export default function InquiriesPage() {
 
         {isLoading ? (
           <p className="text-center text-gray-500 py-12">로딩 중...</p>
+        ) : isError ? (
+          <Card>
+            <p className="text-center text-red-500 py-6 leading-relaxed">
+              문의 내역을 불러오지 못했습니다.
+              <br />
+              <span className="text-sm text-gray-500">
+                {(error as Error)?.message || "잠시 후 다시 시도해주세요."}
+              </span>
+            </p>
+            <Button size="md" fullWidth onClick={() => refetch()}>
+              다시 시도
+            </Button>
+          </Card>
         ) : (
-          <InquiryList inquiries={inquiries} />
+          <InquiryList inquiries={inquiries ?? []} />
         )}
       </div>
     </AuthGuard>
