@@ -1,26 +1,77 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
+import { Geolocation } from "@capacitor/geolocation";
 import { useWorkoutStore } from "@/stores/workoutStore";
+import { isNativeApp } from "@/lib/native";
 
 export function useGeolocationTracking(enabled: boolean) {
-  const watchIdRef = useRef<number | null>(null);
+  const watchIdRef = useRef<string | null>(null);
+  const webWatchIdRef = useRef<number | null>(null);
   const { addRoutePoint, tick, isPaused } = useWorkoutStore();
 
-  const startTracking = useCallback(() => {
+  const handlePosition = useCallback(
+    (latitude: number, longitude: number) => {
+      if (!useWorkoutStore.getState().isPaused) {
+        addRoutePoint({ latitude, longitude });
+      }
+    },
+    [addRoutePoint]
+  );
+
+  const startNativeTracking = useCallback(async () => {
+    try {
+      const perm = await Geolocation.checkPermissions();
+      if (perm.location !== "granted") {
+        const req = await Geolocation.requestPermissions();
+        if (req.location !== "granted") {
+          console.error("Location permission denied");
+          return;
+        }
+      }
+
+      const watchId = await Geolocation.watchPosition(
+        {
+          enableHighAccuracy: true,
+          maximumAge: 1000,
+          timeout: 10000,
+        },
+        (position, err) => {
+          if (err) {
+            console.error("Geolocation error:", err);
+            return;
+          }
+          if (position) {
+            handlePosition(
+              position.coords.latitude,
+              position.coords.longitude
+            );
+          }
+        }
+      );
+
+      watchIdRef.current = watchId;
+    } catch (error) {
+      console.error("Failed to start native geolocation:", error);
+    }
+  }, [handlePosition]);
+
+  const stopNativeTracking = useCallback(async () => {
+    if (watchIdRef.current !== null) {
+      await Geolocation.clearWatch({ id: watchIdRef.current });
+      watchIdRef.current = null;
+    }
+  }, []);
+
+  const startWebTracking = useCallback(() => {
     if (!navigator.geolocation) {
       console.error("Geolocation is not supported");
       return;
     }
 
-    watchIdRef.current = navigator.geolocation.watchPosition(
+    webWatchIdRef.current = navigator.geolocation.watchPosition(
       (position) => {
-        if (!useWorkoutStore.getState().isPaused) {
-          addRoutePoint({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        }
+        handlePosition(position.coords.latitude, position.coords.longitude);
       },
       (error) => {
         console.error("Geolocation error:", error);
@@ -31,14 +82,30 @@ export function useGeolocationTracking(enabled: boolean) {
         timeout: 10000,
       }
     );
-  }, [addRoutePoint]);
+  }, [handlePosition]);
 
-  const stopTracking = useCallback(() => {
-    if (watchIdRef.current !== null) {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
+  const stopWebTracking = useCallback(() => {
+    if (webWatchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(webWatchIdRef.current);
+      webWatchIdRef.current = null;
     }
   }, []);
+
+  const startTracking = useCallback(() => {
+    if (isNativeApp()) {
+      void startNativeTracking();
+    } else {
+      startWebTracking();
+    }
+  }, [startNativeTracking, startWebTracking]);
+
+  const stopTracking = useCallback(() => {
+    if (isNativeApp()) {
+      void stopNativeTracking();
+    } else {
+      stopWebTracking();
+    }
+  }, [stopNativeTracking, stopWebTracking]);
 
   useEffect(() => {
     if (enabled) {
@@ -46,7 +113,9 @@ export function useGeolocationTracking(enabled: boolean) {
     } else {
       stopTracking();
     }
-    return () => stopTracking();
+    return () => {
+      stopTracking();
+    };
   }, [enabled, startTracking, stopTracking]);
 
   useEffect(() => {

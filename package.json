@@ -8,9 +8,18 @@
     "start": "next start",
     "lint": "next lint",
     "deploy:firebase": "firebase deploy --only firestore:rules,firestore:indexes",
-    "deploy:firebase:firestore": "firebase deploy --only firestore:rules,firestore:indexes"
+    "deploy:firebase:firestore": "firebase deploy --only firestore:rules,firestore:indexes",
+    "cap:sync": "npx cap sync android",
+    "cap:open": "npx cap open android",
+    "android:dev": "next dev --turbopack -H 0.0.0.0"
   },
   "dependencies": {
+    "@capacitor-community/keep-awake": "^8.0.1",
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/geolocation": "^8.2.0",
     "@tanstack/react-query": "^5.62.8",
     "firebase": "^11.1.0",
     "leaflet": "^1.9.4",

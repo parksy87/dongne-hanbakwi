@@ -39,3 +39,9 @@ auth-users.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# capacitor (android/ 는 커밋 — IDE/local build 아티팩트만 제외)
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties

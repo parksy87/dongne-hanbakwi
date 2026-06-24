@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 import { useWorkoutStore } from "@/stores/workoutStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useGeolocationTracking } from "@/hooks/useGeolocation";
+import { useWorkoutSessionNative } from "@/hooks/useWorkoutSessionNative";
 import { useTodayAttendance } from "@/hooks/useWorkouts";
 import {
   getAttendancePreview,
@@ -51,6 +52,7 @@ function WorkoutContent() {
       : null;
 
   useGeolocationTracking(isActive && !isPaused);
+  useWorkoutSessionNative(isActive);
 
   useEffect(() => {
     if (!type || isActive) return;
