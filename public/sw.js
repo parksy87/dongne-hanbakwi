@@ -8,6 +8,16 @@ const STATIC_ASSETS = [
   "/manifest.json",
   "/icons/icon-192x192.png",
   "/icons/icon-512x512.png",
+  "/daily-quote-bg/01.jpg",
+  "/daily-quote-bg/02.jpg",
+  "/daily-quote-bg/03.jpg",
+  "/daily-quote-bg/04.jpg",
+  "/daily-quote-bg/05.jpg",
+  "/daily-quote-bg/06.jpg",
+  "/daily-quote-bg/07.jpg",
+  "/daily-quote-bg/08.jpg",
+  "/daily-quote-bg/09.jpg",
+  "/daily-quote-bg/10.jpg",
 ];
 
 self.addEventListener("install", (event) => {

@@ -7,6 +7,9 @@ import WorkoutMap from "@/components/map/WorkoutMap";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { getWorkout } from "@/services/workoutService";
+import { useAuthStore } from "@/stores/authStore";
+import { useDeleteWorkout } from "@/hooks/useWorkouts";
+import { toastError, toastSuccess } from "@/stores/toastStore";
 import { Workout } from "@/types";
 import {
   formatDistance,
@@ -20,6 +23,8 @@ import { ArrowLeft } from "lucide-react";
 export default function WorkoutDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { user, setUser } = useAuthStore();
+  const deleteWorkout = useDeleteWorkout();
   const [workout, setWorkout] = useState<Workout | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,6 +36,23 @@ export default function WorkoutDetailPage() {
     };
     load();
   }, [params.id]);
+
+  const handleDelete = async () => {
+    if (!workout || !user || workout.userId !== user.uid) return;
+    if (!confirm("이 운동 기록을 삭제하시겠습니까?\n출석·통계가 다시 계산됩니다.")) return;
+
+    try {
+      const updated = await deleteWorkout.mutateAsync({
+        workoutId: workout.id,
+        userId: user.uid,
+      });
+      setUser(updated);
+      toastSuccess("운동 기록이 삭제되었습니다.");
+      router.replace("/records");
+    } catch {
+      toastError("삭제에 실패했습니다.");
+    }
+  };
 
   if (loading) {
     return (
@@ -62,6 +84,8 @@ export default function WorkoutDetailPage() {
     { label: "평균 페이스", value: formatPace(workout.pace) },
     { label: "칼로리", value: `${workout.calories}kcal` },
   ];
+
+  const isOwner = user?.uid === workout.userId;
 
   return (
     <AuthGuard>
@@ -97,10 +121,22 @@ export default function WorkoutDetailPage() {
         </Card>
 
         {workout.memo && (
-          <Card>
+          <Card className="mb-4">
             <h3 className="text-sm font-bold text-secondary mb-2">메모</h3>
             <p className="text-secondary leading-relaxed">{workout.memo}</p>
           </Card>
+        )}
+
+        {isOwner && (
+          <Button
+            variant="danger"
+            size="lg"
+            fullWidth
+            onClick={handleDelete}
+            disabled={deleteWorkout.isPending}
+          >
+            {deleteWorkout.isPending ? "삭제 중..." : "운동 기록 삭제"}
+          </Button>
         )}
       </div>
     </AuthGuard>

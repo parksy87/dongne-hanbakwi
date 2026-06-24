@@ -17,6 +17,14 @@ export const ATTENDANCE_RULES = {
   running: { minDuration: 5 * 60, minDistance: 1000 },
 };
 
+/** 출석 목표 입력 허용 범위 */
+export const ATTENDANCE_RULE_LIMITS = {
+  minDurationSec: 60,
+  maxDurationSec: 2 * 60 * 60,
+  minDistanceM: 100,
+  maxDistanceM: 50_000,
+};
+
 export const BADGE_DEFINITIONS = [
   {
     type: "first_step",

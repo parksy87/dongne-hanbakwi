@@ -8,7 +8,6 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { useAuthStore } from "@/stores/authStore";
 import { useWorkoutStore } from "@/stores/workoutStore";
-import { useAttendanceRules } from "@/hooks/useAppSettings";
 import { completeWorkout } from "@/services/workoutCompleteService";
 import { toastSuccess, toastError } from "@/stores/toastStore";
 import {
@@ -16,6 +15,12 @@ import {
   formatDuration,
   formatPace,
 } from "@/lib/utils";
+import WorkoutAttendancePreview from "@/components/workout/WorkoutAttendancePreview";
+import { useTodayAttendance } from "@/hooks/useWorkouts";
+import {
+  getAttendancePreview,
+  resolveUserAttendanceRules,
+} from "@/lib/attendanceRules";
 import { WORKOUT_TYPE_LABELS } from "@/lib/constants";
 import { WorkoutType, RoutePoint } from "@/types";
 
@@ -32,7 +37,7 @@ export default function WorkoutSummaryPage() {
   const router = useRouter();
   const { user, setUser } = useAuthStore();
   const { reset } = useWorkoutStore();
-  const attendanceRules = useAttendanceRules();
+  const { data: isAttendedToday = false } = useTodayAttendance(user?.uid);
   const [memo, setMemo] = useState("");
   const [summary, setSummary] = useState<SummaryData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -60,7 +65,6 @@ export default function WorkoutSummaryPage() {
         calories: summary.calories,
         memo,
         route: summary.route,
-        attendanceRules,
       });
 
       setUser(result.updatedUser);
@@ -83,6 +87,15 @@ export default function WorkoutSummaryPage() {
   };
 
   if (!summary) return null;
+
+  const rules = resolveUserAttendanceRules(user);
+  const attendancePreview = getAttendancePreview(
+    summary.type,
+    summary.duration,
+    summary.distance,
+    rules,
+    isAttendedToday
+  );
 
   const stats = [
     { label: "총 거리", value: formatDistance(summary.distance) },
@@ -109,6 +122,8 @@ export default function WorkoutSummaryPage() {
             ))}
           </div>
         </Card>
+
+        <WorkoutAttendancePreview type={summary.type} preview={attendancePreview} />
 
         <WorkoutMap
           route={summary.route}

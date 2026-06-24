@@ -1,7 +1,7 @@
 "use client";
 
-import { Bell } from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
+import NotificationBell from "./NotificationBell";
 
 interface HeaderProps {
   showNotification?: boolean;
@@ -19,14 +19,7 @@ export default function Header({
           {title || APP_NAME}
         </h1>
       </div>
-      {showNotification && (
-        <button
-          className="p-3 rounded-full bg-gray hover:bg-gray-200 transition-colors"
-          aria-label="알림"
-        >
-          <Bell size={22} className="text-secondary" />
-        </button>
-      )}
+      {showNotification && <NotificationBell />}
     </header>
   );
 }

@@ -5,12 +5,11 @@ import {
   getAppSettings,
   getDefaultSettings,
 } from "@/services/settingsService";
-import { AppSettings, AttendanceRules } from "@/types";
+import { AppSettings } from "@/types";
 import { Timestamp } from "firebase/firestore";
 import {
   APP_SLOGAN,
   APP_SUB_SLOGAN,
-  ATTENDANCE_RULES,
   DAILY_QUOTES,
   APP_VERSION,
 } from "@/lib/constants";
@@ -29,11 +28,6 @@ export function useAppSettings() {
     },
     staleTime: 5 * 60 * 1000,
   });
-}
-
-export function useAttendanceRules(): AttendanceRules {
-  const { data } = useAppSettings();
-  return data?.attendanceRules ?? ATTENDANCE_RULES;
 }
 
 export function useSlogans() {

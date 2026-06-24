@@ -6,7 +6,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { getInquiry } from "@/services/inquiryService";
-import { useAnswerInquiry } from "@/hooks/useAdmin";
+import { useAnswerInquiry, useAdminDeleteInquiry } from "@/hooks/useAdmin";
 import { toastSuccess, toastError } from "@/stores/toastStore";
 import { Inquiry } from "@/types";
 import { INQUIRY_STATUS_LABELS } from "@/lib/constants";
@@ -16,6 +16,7 @@ export default function AdminInquiryDetailPage() {
   const params = useParams();
   const router = useRouter();
   const answerMutation = useAnswerInquiry();
+  const deleteMutation = useAdminDeleteInquiry();
   const [inquiry, setInquiry] = useState<Inquiry | null>(null);
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(true);
@@ -39,6 +40,18 @@ export default function AdminInquiryDetailPage() {
       router.push("/admin/inquiries");
     } catch {
       toastError("답변 등록에 실패했습니다.");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!inquiry) return;
+    if (!confirm("이 문의를 삭제하시겠습니까?")) return;
+    try {
+      await deleteMutation.mutateAsync(inquiry.id);
+      toastSuccess("문의가 삭제되었습니다.");
+      router.push("/admin/inquiries");
+    } catch {
+      toastError("삭제에 실패했습니다.");
     }
   };
 
@@ -71,9 +84,20 @@ export default function AdminInquiryDetailPage() {
         />
       </Card>
 
-      <Button size="lg" fullWidth onClick={handleSubmit} disabled={answerMutation.isPending}>
-        {answerMutation.isPending ? "저장 중..." : "답변 저장"}
-      </Button>
+      <div className="flex flex-col gap-3">
+        <Button size="lg" fullWidth onClick={handleSubmit} disabled={answerMutation.isPending}>
+          {answerMutation.isPending ? "저장 중..." : "답변 저장"}
+        </Button>
+        <Button
+          size="lg"
+          fullWidth
+          variant="danger"
+          onClick={handleDelete}
+          disabled={deleteMutation.isPending}
+        >
+          {deleteMutation.isPending ? "삭제 중..." : "문의 삭제"}
+        </Button>
+      </div>
     </div>
   );
 }

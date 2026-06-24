@@ -124,7 +124,7 @@ export default function InquiryDetailPage() {
 
         {inquiry.status === "pending" && (
           <Button
-            variant="outline"
+            variant="danger"
             size="lg"
             fullWidth
             onClick={handleDelete}

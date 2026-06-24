@@ -14,13 +14,6 @@ import { getExcludedUserIds } from "./rankingExclusionService";
 
 type Period = "weekly" | "monthly";
 
-async function getUserInfo(userId: string) {
-  const userDoc = await getDoc(doc(getFirebaseDb(), "users", userId));
-  if (!userDoc.exists()) return { nickname: "익명", profileImage: "" };
-  const data = userDoc.data();
-  return { nickname: data.nickname, profileImage: data.profileImage };
-}
-
 export async function getRanking(period: Period): Promise<RankingEntry[]> {
   const startDate =
     period === "weekly" ? getWeekStart() : getMonthStart();
@@ -43,11 +36,13 @@ export async function getRanking(period: Period): Promise<RankingEntry[]> {
   const entries: RankingEntry[] = [];
   for (const [userId, totalDistance] of distanceMap) {
     if (excludedIds.has(userId)) continue;
-    const userInfo = await getUserInfo(userId);
+    const userDoc = await getDoc(doc(getFirebaseDb(), "users", userId));
+    if (!userDoc.exists() || userDoc.data().excludeFromRanking) continue;
+    const data = userDoc.data();
     entries.push({
       userId,
-      nickname: userInfo.nickname,
-      profileImage: userInfo.profileImage,
+      nickname: data.nickname || "익명",
+      profileImage: data.profileImage || "",
       totalDistance,
       rank: 0,
     });

@@ -7,14 +7,26 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
-import { User } from "@/types";
+import { User, AttendanceRules } from "@/types";
 import { calculateLevel } from "@/lib/utils";
 import { User as FirebaseUser } from "firebase/auth";
+import {
+  getDefaultAttendanceRules,
+  clampAttendanceRules,
+  DEFAULT_WEEKLY_ATTENDANCE_GOAL,
+} from "@/lib/attendanceRules";
+
+function withAttendanceRules(data: User): User {
+  return {
+    ...data,
+    attendanceRules: data.attendanceRules ?? getDefaultAttendanceRules(),
+  };
+}
 
 export async function getUser(uid: string): Promise<User | null> {
   const userDoc = await getDoc(doc(getFirebaseDb(), "users", uid));
   if (!userDoc.exists()) return null;
-  return userDoc.data() as User;
+  return withAttendanceRules(userDoc.data() as User);
 }
 
 export async function createUser(firebaseUser: FirebaseUser): Promise<User> {
@@ -31,6 +43,9 @@ export async function createUser(firebaseUser: FirebaseUser): Promise<User> {
     totalDistance: 0,
     totalDuration: 0,
     totalWorkoutCount: 0,
+    attendanceRules: getDefaultAttendanceRules(),
+    excludeFromRanking: false,
+    weeklyAttendanceGoal: DEFAULT_WEEKLY_ATTENDANCE_GOAL,
     createdAt: serverTimestamp(),
   };
 
@@ -53,6 +68,31 @@ export async function updateUserProfile(
   data: Partial<Pick<User, "nickname" | "profileImage">>
 ) {
   await updateDoc(doc(getFirebaseDb(), "users", uid), data);
+}
+
+export async function updateUserPreferences(
+  uid: string,
+  data: Partial<
+    Pick<
+      User,
+      | "excludeFromRanking"
+      | "weeklyAttendanceGoal"
+      | "lastSeenInquiryAnswerAt"
+    >
+  >
+) {
+  await updateDoc(doc(getFirebaseDb(), "users", uid), data);
+}
+
+export async function updateUserAttendanceRules(
+  uid: string,
+  rules: AttendanceRules
+): Promise<AttendanceRules> {
+  const clamped = clampAttendanceRules(rules);
+  await updateDoc(doc(getFirebaseDb(), "users", uid), {
+    attendanceRules: clamped,
+  });
+  return clamped;
 }
 
 export async function updateUserStats(

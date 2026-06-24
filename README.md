@@ -9,7 +9,7 @@
 - Next.js 15 (App Router)
 - TypeScript
 - Tailwind CSS
-- Firebase (Auth, Firestore, Storage)
+- Firebase (Auth, Firestore)
 - Zustand / React Query
 - Leaflet (지도)
 - PWA
@@ -29,10 +29,6 @@ npm install
 3. Firestore Database 생성
 4. `.env.example`을 `.env.local`로 복사 후 Firebase 설정값 입력
 
-```bash
-cp .env.example .env.local
-```
-
 ### 3. Firestore 규칙 및 인덱스 배포
 
 ```bash
@@ -47,41 +43,32 @@ npm run dev
 
 http://localhost:3000 에서 확인
 
-## 프로젝트 구조
-
-```
-app/           # Next.js App Router 페이지
-components/    # UI 컴포넌트
-hooks/         # 커스텀 훅
-stores/        # Zustand 스토어
-lib/           # 유틸리티, Firebase 설정
-services/      # Firebase 서비스 레이어
-types/         # TypeScript 타입
-public/        # 정적 파일, PWA manifest
-styles/        # 글로벌 CSS
-```
-
 ## 주요 기능
 
 - Google 로그인
 - GPS 기반 운동 기록 (걷기/산책/러닝)
-- 자동 출석 판정 및 연속 출석(스트릭)
-- 주간/월간/연간 운동 통계
-- 출석 캘린더
-- 주간/월간 거리 랭킹
-- 배지 시스템
+- **사용자별 출석 목표** 설정 및 자동 출석·스트릭
+- 운동 완료 시 출석 충족 여부 미리보기
+- 주간 출석 목표·진행률 (홈 화면)
+- 주간/월간/연간 운동 통계·출석 캘린더
+- 운동 기록 삭제 (통계·출석 자동 재계산)
+- 랭킹 참여 ON/OFF
+- 문의 답변 앱 내 알림 (종 아이콘)
+- 배지, 공지, CSV 내보내기, 회원 탈퇴
 - PWA (홈화면 추가, 오프라인 캐싱)
 
 ## 출석 조건
 
-| 운동 종류 | 조건 |
-|----------|------|
-| 걷기/산책 | 10분 이상 또는 700m 이상 |
-| 러닝 | 5분 이상 또는 1km 이상 |
+**마이페이지 → 출석 목표**에서 운동 종류별 최소 시간·거리를 직접 설정합니다.
+
+- 걷기/산책/러닝 각각 **시간 OR 거리** 중 하나만 충족하면 출석
+- 기본값: 걷기·산책 10분/700m, 러닝 5분/1000m
 
 ## PWA 설치
 
 모바일 브라우저에서 "홈 화면에 추가"로 앱처럼 사용할 수 있습니다.
+
+> 푸시 알림·백그라운드 GPS는 하이브리드 앱 전환 후 지원 예정입니다.
 
 ## 라이선스
 

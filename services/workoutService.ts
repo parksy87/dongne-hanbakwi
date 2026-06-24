@@ -63,6 +63,13 @@ export async function getWorkoutsInRange(
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Workout);
 }
 
+export async function getTodayWorkouts(userId: string): Promise<Workout[]> {
+  const now = new Date();
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  return getWorkoutsInRange(userId, start, now);
+}
+
 export async function getWeeklyWorkouts(userId: string): Promise<Workout[]> {
   const now = new Date();
   const weekStart = new Date(now);

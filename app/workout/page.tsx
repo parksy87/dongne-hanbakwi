@@ -10,6 +10,7 @@ import { useWorkoutStore } from "@/stores/workoutStore";
 import { useGeolocationTracking } from "@/hooks/useGeolocation";
 import { WorkoutType } from "@/types";
 import { WORKOUT_TYPE_LABELS } from "@/lib/constants";
+import WorkoutGpsNotice from "@/components/workout/WorkoutGpsNotice";
 import { Pause, Play, Square } from "lucide-react";
 
 function WorkoutContent() {
@@ -72,6 +73,7 @@ function WorkoutContent() {
       </div>
 
       <div className="flex-1 p-4 space-y-4">
+        <WorkoutGpsNotice />
         <WorkoutStats
           duration={duration}
           distance={distance}

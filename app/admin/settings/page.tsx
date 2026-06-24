@@ -26,7 +26,6 @@ export default function AdminSettingsPage() {
         maintenanceMessage: form.maintenanceMessage,
         appVersion: form.appVersion,
         dailyQuotes: form.dailyQuotes,
-        attendanceRules: form.attendanceRules,
       });
       toastSuccess("설정이 저장되었습니다.");
     } catch {
@@ -38,7 +37,7 @@ export default function AdminSettingsPage() {
 
   return (
     <div>
-      <AdminHeader title="앱 설정" description="슬로건, 출석 조건, 점검 모드 등" />
+      <AdminHeader title="앱 설정" description="슬로건, 점검 모드, 앱 버전 등" />
 
       <Card className="mb-4 space-y-4">
         <h3 className="font-bold">슬로건</h3>
@@ -58,54 +57,6 @@ export default function AdminSettingsPage() {
           className="w-full p-3 bg-gray rounded-xl"
           placeholder="서브 슬로건"
         />
-      </Card>
-
-      <Card className="mb-4 space-y-4">
-        <h3 className="font-bold">출석 조건 (초 / 미터)</h3>
-        {(["walking", "strolling", "running"] as const).map((type) => (
-          <div key={type} className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs text-gray-500">{type} 최소 시간(초)</label>
-              <input
-                type="number"
-                value={form.attendanceRules?.[type]?.minDuration || 0}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    attendanceRules: {
-                      ...f.attendanceRules!,
-                      [type]: {
-                        ...f.attendanceRules![type],
-                        minDuration: Number(e.target.value),
-                      },
-                    },
-                  }))
-                }
-                className="w-full p-2 bg-gray rounded-xl"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500">{type} 최소 거리(m)</label>
-              <input
-                type="number"
-                value={form.attendanceRules?.[type]?.minDistance || 0}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    attendanceRules: {
-                      ...f.attendanceRules!,
-                      [type]: {
-                        ...f.attendanceRules![type],
-                        minDistance: Number(e.target.value),
-                      },
-                    },
-                  }))
-                }
-                className="w-full p-2 bg-gray rounded-xl"
-              />
-            </div>
-          </div>
-        ))}
       </Card>
 
       <Card className="mb-4 space-y-4">

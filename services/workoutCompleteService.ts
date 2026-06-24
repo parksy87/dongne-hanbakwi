@@ -9,7 +9,6 @@ import {
 } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import {
-  AttendanceRules,
   User,
   WorkoutType,
   RoutePoint,
@@ -19,11 +18,12 @@ import {
   getYesterdayDateString,
   calculateLevel,
 } from "@/lib/utils";
+import { resolveUserAttendanceRules } from "@/lib/attendanceRules";
 import { getUser, updateUserStats } from "./userService";
 import { checkAndAwardBadges } from "./badgeService";
 
 function checkEligibility(
-  rules: AttendanceRules,
+  rules: ReturnType<typeof resolveUserAttendanceRules>,
   type: WorkoutType,
   duration: number,
   distance: number
@@ -71,7 +71,6 @@ export interface CompleteWorkoutInput {
   calories: number;
   memo: string;
   route: RoutePoint[];
-  attendanceRules: AttendanceRules;
 }
 
 export interface CompleteWorkoutResult {
@@ -90,13 +89,6 @@ export async function completeWorkout(
   const userRef = doc(db, "users", input.userId);
   const attRef = doc(db, "attendance", attDocId);
 
-  const eligible = checkEligibility(
-    input.attendanceRules,
-    input.type,
-    input.duration,
-    input.distance
-  );
-
   let attended = false;
 
   await runTransaction(db, async (transaction) => {
@@ -104,7 +96,15 @@ export async function completeWorkout(
     if (!userSnap.exists()) throw new Error("사용자 정보를 찾을 수 없습니다.");
 
     const userData = userSnap.data() as User;
+    const attendanceRules = resolveUserAttendanceRules(userData);
     const attSnap = await transaction.get(attRef);
+
+    const eligible = checkEligibility(
+      attendanceRules,
+      input.type,
+      input.duration,
+      input.distance
+    );
 
     transaction.set(workoutRef, {
       userId: input.userId,

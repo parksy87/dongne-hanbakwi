@@ -7,12 +7,11 @@ import {
   getAllUsers,
   searchUsers,
   suspendUser,
-  updateUserNickname,
 } from "@/services/adminService";
 import {
   getAllInquiries,
-  getPendingInquiries,
   answerInquiry,
+  deleteInquiry,
 } from "@/services/inquiryService";
 import {
   getAllAnnouncements,
@@ -130,7 +129,10 @@ export function useCreateAnnouncement() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: createAnnouncement,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "announcements"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "announcements"] });
+      qc.invalidateQueries({ queryKey: ["announcements", "active"] });
+    },
   });
 }
 
@@ -144,7 +146,10 @@ export function useUpdateAnnouncement() {
       id: string;
       data: Parameters<typeof updateAnnouncement>[1];
     }) => updateAnnouncement(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "announcements"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "announcements"] });
+      qc.invalidateQueries({ queryKey: ["announcements", "active"] });
+    },
   });
 }
 
@@ -152,7 +157,22 @@ export function useDeleteAnnouncement() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: deleteAnnouncement,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "announcements"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "announcements"] });
+      qc.invalidateQueries({ queryKey: ["announcements", "active"] });
+    },
+  });
+}
+
+export function useAdminDeleteInquiry() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: deleteInquiry,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "inquiries"] });
+      qc.invalidateQueries({ queryKey: ["admin", "dashboard"] });
+      qc.invalidateQueries({ queryKey: ["inquiries"] });
+    },
   });
 }
 
@@ -236,4 +256,4 @@ export function useDeleteBadgeAdmin() {
   });
 }
 
-export { searchUsers, updateUserNickname };
+export { searchUsers };

@@ -4,15 +4,27 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthGuard from "@/components/layout/AuthGuard";
 import Header from "@/components/layout/Header";
-import AttendanceCard from "@/components/home/AttendanceCard";
+import AttendanceCard, {
+  countWeeklyAttendance,
+  getTodayBestWorkout,
+} from "@/components/home/AttendanceCard";
 import WeeklyStatsCard from "@/components/home/WeeklyStatsCard";
 import DailyQuoteCard from "@/components/home/DailyQuoteCard";
 import AnnouncementBanner from "@/components/home/AnnouncementBanner";
 import WorkoutTypeModal from "@/components/home/WorkoutTypeModal";
 import { useAuthStore } from "@/stores/authStore";
-import { useWeeklyWorkouts, useTodayAttendance } from "@/hooks/useWorkouts";
+import {
+  useWeeklyWorkouts,
+  useTodayAttendance,
+  useTodayWorkouts,
+  useAttendance,
+} from "@/hooks/useWorkouts";
 import { useAnnouncements } from "@/hooks/useAnnouncements";
 import { useSlogans } from "@/hooks/useAppSettings";
+import {
+  resolveUserAttendanceRules,
+  DEFAULT_WEEKLY_ATTENDANCE_GOAL,
+} from "@/lib/attendanceRules";
 import { WorkoutType } from "@/types";
 
 export default function HomePage() {
@@ -23,7 +35,14 @@ export default function HomePage() {
 
   const { data: weeklyWorkouts = [] } = useWeeklyWorkouts(user?.uid);
   const { data: isAttended = false } = useTodayAttendance(user?.uid);
+  const { data: todayWorkouts = [] } = useTodayWorkouts(user?.uid);
+  const { data: attendance = [] } = useAttendance(user?.uid);
   const { data: announcements = [] } = useAnnouncements();
+
+  const rules = resolveUserAttendanceRules(user);
+  const weeklyGoal = user?.weeklyAttendanceGoal ?? DEFAULT_WEEKLY_ATTENDANCE_GOAL;
+  const weeklyAttendanceCount = countWeeklyAttendance(attendance);
+  const todayBest = getTodayBestWorkout(todayWorkouts);
 
   const weeklyStats = weeklyWorkouts.reduce(
     (acc, w) => ({
@@ -50,6 +69,10 @@ export default function HomePage() {
         <AttendanceCard
           isAttended={isAttended}
           streak={user?.streak || 0}
+          rules={rules}
+          weeklyAttendanceCount={weeklyAttendanceCount}
+          weeklyGoal={weeklyGoal}
+          todayBest={todayBest}
         />
 
         <div className="flex justify-center mb-8">

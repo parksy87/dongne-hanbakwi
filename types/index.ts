@@ -17,6 +17,10 @@ export interface User {
   totalDistance: number;
   totalDuration: number;
   totalWorkoutCount: number;
+  attendanceRules?: AttendanceRules;
+  excludeFromRanking?: boolean;
+  weeklyAttendanceGoal?: number;
+  lastSeenInquiryAnswerAt?: Timestamp;
   isSuspended?: boolean;
   suspendedReason?: string;
   createdAt: Timestamp;
@@ -134,7 +138,6 @@ export interface AttendanceRules {
 }
 
 export interface AppSettings {
-  attendanceRules: AttendanceRules;
   slogans: { main: string; sub: string };
   dailyQuotes: string[];
   maintenanceMode: boolean;

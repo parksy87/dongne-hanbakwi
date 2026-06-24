@@ -1,7 +1,8 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getUserWorkouts, getWeeklyWorkouts, saveWorkout } from "@/services/workoutService";
+import { getUserWorkouts, getWeeklyWorkouts, getTodayWorkouts, saveWorkout } from "@/services/workoutService";
+import { deleteUserWorkout } from "@/services/workoutDeleteService";
 import { getUserAttendance, isAttendedToday } from "@/services/attendanceService";
 import { getUserBadges } from "@/services/badgeService";
 import { getRanking } from "@/services/rankingService";
@@ -44,6 +45,28 @@ export function useUserBadges(userId: string | undefined) {
     queryKey: ["badges", userId],
     queryFn: () => getUserBadges(userId!),
     enabled: !!userId,
+  });
+}
+
+export function useTodayWorkouts(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["workouts", "today", userId],
+    queryFn: () => getTodayWorkouts(userId!),
+    enabled: !!userId,
+  });
+}
+
+export function useDeleteWorkout() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ workoutId, userId }: { workoutId: string; userId: string }) =>
+      deleteUserWorkout(workoutId, userId),
+    onSuccess: (updatedUser) => {
+      queryClient.invalidateQueries({ queryKey: ["workouts"] });
+      queryClient.invalidateQueries({ queryKey: ["attendance"] });
+      queryClient.invalidateQueries({ queryKey: ["ranking"] });
+      return updatedUser;
+    },
   });
 }
 

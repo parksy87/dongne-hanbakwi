@@ -62,14 +62,17 @@ export async function getAllInquiries(): Promise<Inquiry[]> {
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Inquiry);
 }
 
-export async function getPendingInquiries(): Promise<Inquiry[]> {
-  const q = query(
-    collection(getFirebaseDb(), "inquiries"),
-    where("status", "==", "pending"),
-    orderBy("createdAt", "desc")
-  );
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Inquiry);
+export async function getUnreadAnsweredInquiryCount(
+  userId: string,
+  lastSeenAt?: { toMillis?: () => number }
+): Promise<number> {
+  const inquiries = await getUserInquiries(userId);
+  const lastMs = lastSeenAt?.toMillis?.() ?? 0;
+  return inquiries.filter(
+    (i) =>
+      i.status === "answered" &&
+      (i.answeredAt?.toMillis?.() ?? 0) > lastMs
+  ).length;
 }
 
 export async function answerInquiry(

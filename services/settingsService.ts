@@ -5,7 +5,6 @@ import {
   APP_SLOGAN,
   APP_SUB_SLOGAN,
   APP_VERSION,
-  ATTENDANCE_RULES,
   DAILY_QUOTES,
 } from "@/lib/constants";
 
@@ -13,7 +12,6 @@ const SETTINGS_DOC = "global";
 
 export function getDefaultSettings(): Omit<AppSettings, "updatedAt"> {
   return {
-    attendanceRules: ATTENDANCE_RULES,
     slogans: { main: APP_SLOGAN, sub: APP_SUB_SLOGAN },
     dailyQuotes: DAILY_QUOTES,
     maintenanceMode: false,

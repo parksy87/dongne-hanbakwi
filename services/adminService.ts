@@ -111,11 +111,3 @@ export async function suspendUser(
     suspendedReason: reason || "",
   });
 }
-
-export async function updateUserNickname(
-  uid: string,
-  nickname: string
-): Promise<void> {
-  const { updateDoc } = await import("firebase/firestore");
-  await updateDoc(doc(getFirebaseDb(), "users", uid), { nickname });
-}

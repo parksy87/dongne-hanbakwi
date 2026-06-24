@@ -3,21 +3,33 @@
 import { useState } from "react";
 import Link from "next/link";
 import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
 import Tabs from "@/components/ui/Tabs";
 import AdminHeader from "@/components/admin/AdminHeader";
-import { useAdminInquiries } from "@/hooks/useAdmin";
+import { useAdminInquiries, useAdminDeleteInquiry } from "@/hooks/useAdmin";
 import { INQUIRY_STATUS_LABELS } from "@/lib/constants";
+import { toastError } from "@/stores/toastStore";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 
 export default function AdminInquiriesPage() {
   const [filter, setFilter] = useState("all");
   const { data: inquiries = [], isLoading } = useAdminInquiries(true);
+  const deleteMutation = useAdminDeleteInquiry();
 
   const filtered =
     filter === "all"
       ? inquiries
       : inquiries.filter((i) => i.status === filter);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("이 문의를 삭제하시겠습니까?")) return;
+    try {
+      await deleteMutation.mutateAsync(id);
+    } catch {
+      toastError("삭제에 실패했습니다.");
+    }
+  };
 
   return (
     <div>
@@ -41,9 +53,12 @@ export default function AdminInquiriesPage() {
       ) : (
         <div className="space-y-3">
           {filtered.map((inquiry) => (
-            <Link key={inquiry.id} href={`/admin/inquiries/${inquiry.id}`}>
-              <Card className="hover:bg-gray/50 transition-colors flex items-center justify-between gap-3">
-                <div className="min-w-0 flex-1">
+            <Card key={inquiry.id} className="hover:bg-gray/50 transition-colors">
+              <div className="flex items-center justify-between gap-3">
+                <Link
+                  href={`/admin/inquiries/${inquiry.id}`}
+                  className="min-w-0 flex-1"
+                >
                   <div className="flex items-center gap-2 mb-1">
                     <span
                       className={cn(
@@ -59,10 +74,22 @@ export default function AdminInquiriesPage() {
                   </div>
                   <p className="font-bold text-secondary truncate">{inquiry.title}</p>
                   <p className="text-sm text-gray-500 truncate">{inquiry.content}</p>
+                </Link>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => handleDelete(inquiry.id)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    삭제
+                  </Button>
+                  <Link href={`/admin/inquiries/${inquiry.id}`}>
+                    <ChevronRight size={18} className="text-gray-400" />
+                  </Link>
                 </div>
-                <ChevronRight size={18} className="text-gray-400 shrink-0" />
-              </Card>
-            </Link>
+              </div>
+            </Card>
           ))}
         </div>
       )}
