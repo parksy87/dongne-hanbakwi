@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import AuthGuard from "@/components/layout/AuthGuard";
 import Header from "@/components/layout/Header";
@@ -90,10 +91,18 @@ export default function HomePage() {
 
         <div className="flex justify-center mb-8">
           <button
+            type="button"
             onClick={() => setShowModal(true)}
-            className="w-48 h-48 bg-primary rounded-full flex flex-col items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform"
+            className="w-48 h-48 bg-logo rounded-full flex flex-col items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform"
           >
-            <span className="text-4xl mb-2">🚶</span>
+            <Image
+              src="/icons/icon-mark.png"
+              alt=""
+              width={72}
+              height={72}
+              className="mb-2"
+              priority
+            />
             <span className="text-xl font-bold text-secondary">운동 시작</span>
           </button>
         </div>

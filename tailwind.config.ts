@@ -8,7 +8,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#FEE500",
+        primary: "#FDD60D",
+        logo: "#FDD60D",
         secondary: "#3C1E1E",
         background: "#FFFFFF",
         gray: {
@@ -21,7 +22,7 @@ const config: Config = {
           600: "#525252",
         },
         success: "#22C55E",
-        warning: "#FEE500",
+        warning: "#FDD60D",
       },
       fontFamily: {
         sans: [
