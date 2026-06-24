@@ -74,5 +74,16 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if isAdmin();
     }
+
+    // 그룹 랭킹 확장용 — 생성·가입 API는 추후
+    match /groups/{groupId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    match /groups/{groupId}/members/{memberId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
   }
 }

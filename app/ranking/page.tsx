@@ -8,6 +8,12 @@ import Card from "@/components/ui/Card";
 import RankingList from "@/components/ranking/RankingList";
 import { useAuthStore } from "@/stores/authStore";
 import { useRanking } from "@/hooks/useWorkouts";
+import { RankingMetric, RankingPeriod } from "@/types";
+
+const metricTabs = [
+  { key: "distance", label: "거리" },
+  { key: "attendance", label: "출석" },
+];
 
 const periodTabs = [
   { key: "weekly", label: "주간" },
@@ -16,8 +22,9 @@ const periodTabs = [
 
 export default function RankingPage() {
   const { user } = useAuthStore();
-  const [period, setPeriod] = useState<"weekly" | "monthly">("weekly");
-  const { data: ranking = [], isLoading } = useRanking(period);
+  const [metric, setMetric] = useState<RankingMetric>("distance");
+  const [period, setPeriod] = useState<RankingPeriod>("weekly");
+  const { data: ranking = [], isLoading } = useRanking(period, metric);
 
   return (
     <AuthGuard>
@@ -25,9 +32,16 @@ export default function RankingPage() {
         <Header title="랭킹" showNotification={false} />
 
         <Tabs
+          items={metricTabs}
+          activeKey={metric}
+          onChange={(key) => setMetric(key as RankingMetric)}
+          className="mb-4"
+        />
+
+        <Tabs
           items={periodTabs}
           activeKey={period}
-          onChange={(key) => setPeriod(key as "weekly" | "monthly")}
+          onChange={(key) => setPeriod(key as RankingPeriod)}
           className="mb-6"
         />
 
@@ -40,7 +54,11 @@ export default function RankingPage() {
             </p>
           </Card>
         ) : (
-          <RankingList entries={ranking} currentUserId={user?.uid} />
+          <RankingList
+            entries={ranking}
+            currentUserId={user?.uid}
+            metric={metric}
+          />
         )}
       </div>
     </AuthGuard>

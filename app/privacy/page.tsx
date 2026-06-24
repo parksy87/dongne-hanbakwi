@@ -14,7 +14,8 @@ export default function PrivacyPage() {
           <section>
             <h2 className="font-bold text-base mb-2">1. 수집 항목</h2>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Google 로그인: 이메일, 닉네임, 프로필 이미지</li>
+              <li>Google 로그인: 이메일, 닉네임</li>
+              <li>프로필: 선택한 십이지 동물 아바타, 닉네임</li>
               <li>운동 기록: GPS 경로, 거리, 시간, 칼로리, 메모</li>
               <li>출석·배지·랭킹·문의 내역</li>
             </ul>

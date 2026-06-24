@@ -7,6 +7,13 @@ export interface RoutePoint {
   longitude: number;
 }
 
+/** 시/도·시군구·구(선택) — 지역 랭킹 확장용 */
+export interface UserRegion {
+  sido: string;
+  sigungu: string;
+  gu?: string;
+}
+
 export interface User {
   uid: string;
   email: string;
@@ -21,6 +28,7 @@ export interface User {
   excludeFromRanking?: boolean;
   weeklyAttendanceGoal?: number;
   lastSeenInquiryAnswerAt?: Timestamp;
+  region?: UserRegion;
   isSuspended?: boolean;
   suspendedReason?: string;
   createdAt: Timestamp;
@@ -59,12 +67,41 @@ export interface BadgeDefinition {
   icon: string;
 }
 
+export type RankingMetric = "distance" | "attendance";
+export type RankingPeriod = "weekly" | "monthly" | "yearly";
+export type RankingScope = "global" | "region" | "group";
+
+export interface RankingQuery {
+  metric: RankingMetric;
+  period: RankingPeriod;
+  scope?: RankingScope;
+  /** scope === "region" 일 때 필터 기준 */
+  region?: UserRegion;
+  /** scope === "group" 일 때 */
+  groupId?: string;
+}
+
 export interface RankingEntry {
   userId: string;
   nickname: string;
   profileImage: string;
   totalDistance: number;
+  attendanceCount: number;
   rank: number;
+}
+
+/** 그룹 랭킹 확장용 (UI·생성 API는 추후) */
+export interface Group {
+  id: string;
+  name: string;
+  inviteCode: string;
+  ownerId: string;
+  createdAt: Timestamp;
+}
+
+export interface GroupMember {
+  userId: string;
+  joinedAt: Timestamp;
 }
 
 export interface WeeklyStats {

@@ -6,6 +6,7 @@ import { deleteUserWorkout } from "@/services/workoutDeleteService";
 import { getUserAttendance, isAttendedToday } from "@/services/attendanceService";
 import { getUserBadges } from "@/services/badgeService";
 import { getRanking } from "@/services/rankingService";
+import { RankingMetric, RankingPeriod } from "@/types";
 import { WorkoutType, RoutePoint } from "@/types";
 
 export function useWeeklyWorkouts(userId: string | undefined) {
@@ -70,10 +71,13 @@ export function useDeleteWorkout() {
   });
 }
 
-export function useRanking(period: "weekly" | "monthly") {
+export function useRanking(
+  period: RankingPeriod,
+  metric: RankingMetric = "distance"
+) {
   return useQuery({
-    queryKey: ["ranking", period],
-    queryFn: () => getRanking(period),
+    queryKey: ["ranking", metric, period, "global"],
+    queryFn: () => getRanking({ metric, period, scope: "global" }),
   });
 }
 

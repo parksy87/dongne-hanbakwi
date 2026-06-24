@@ -1,18 +1,31 @@
 "use client";
 
 import Card from "@/components/ui/Card";
-import { RankingEntry } from "@/types";
+import ProfileAvatar from "@/components/common/ProfileAvatar";
+import { RankingEntry, RankingMetric } from "@/types";
 import { formatDistance } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 interface RankingListProps {
   entries: RankingEntry[];
   currentUserId?: string;
+  metric?: RankingMetric;
 }
 
 const rankEmojis = ["🥇", "🥈", "🥉"];
 
-export default function RankingList({ entries, currentUserId }: RankingListProps) {
+function formatScore(entry: RankingEntry, metric: RankingMetric): string {
+  if (metric === "attendance") {
+    return `${entry.attendanceCount}회`;
+  }
+  return formatDistance(entry.totalDistance);
+}
+
+export default function RankingList({
+  entries,
+  currentUserId,
+  metric = "distance",
+}: RankingListProps) {
   if (entries.length === 0) {
     return (
       <Card>
@@ -43,24 +56,18 @@ export default function RankingList({ entries, currentUserId }: RankingListProps
                 )}
               >
                 <p className="text-2xl mb-1">{rankEmojis[idx]}</p>
-                <div className="w-12 h-12 mx-auto rounded-full bg-gray overflow-hidden mb-2">
-                  {entry.profileImage ? (
-                    <img
-                      src={entry.profileImage}
-                      alt={entry.nickname}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-lg">
-                      👤
-                    </div>
-                  )}
-                </div>
+                <ProfileAvatar
+                  profileImage={entry.profileImage}
+                  uid={entry.userId}
+                  nickname={entry.nickname}
+                  size="md"
+                  className="mx-auto mb-2"
+                />
                 <p className="font-bold text-sm text-secondary truncate">
                   {entry.nickname}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {formatDistance(entry.totalDistance)}
+                  {formatScore(entry, metric)}
                 </p>
               </Card>
             );
@@ -83,19 +90,12 @@ export default function RankingList({ entries, currentUserId }: RankingListProps
               <span className="w-8 text-center font-bold text-gray-500">
                 {entry.rank}
               </span>
-              <div className="w-10 h-10 rounded-full bg-gray overflow-hidden">
-                {entry.profileImage ? (
-                  <img
-                    src={entry.profileImage}
-                    alt={entry.nickname}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    👤
-                  </div>
-                )}
-              </div>
+              <ProfileAvatar
+                profileImage={entry.profileImage}
+                uid={entry.userId}
+                nickname={entry.nickname}
+                size="sm"
+              />
               <div className="flex-1">
                 <p className="font-semibold text-secondary">
                   {entry.nickname}
@@ -105,7 +105,7 @@ export default function RankingList({ entries, currentUserId }: RankingListProps
                 </p>
               </div>
               <p className="font-bold text-secondary">
-                {formatDistance(entry.totalDistance)}
+                {formatScore(entry, metric)}
               </p>
             </Card>
           );

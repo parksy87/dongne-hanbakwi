@@ -7,7 +7,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
-import { User, AttendanceRules } from "@/types";
+import { User, AttendanceRules, UserRegion } from "@/types";
 import { calculateLevel } from "@/lib/utils";
 import { User as FirebaseUser } from "firebase/auth";
 import {
@@ -15,6 +15,7 @@ import {
   clampAttendanceRules,
   DEFAULT_WEEKLY_ATTENDANCE_GOAL,
 } from "@/lib/attendanceRules";
+import { getDefaultAvatarForUser } from "@/lib/avatars";
 
 function withAttendanceRules(data: User): User {
   return {
@@ -37,7 +38,7 @@ export async function createUser(firebaseUser: FirebaseUser): Promise<User> {
     uid: firebaseUser.uid,
     email: firebaseUser.email || "",
     nickname,
-    profileImage: firebaseUser.photoURL || "",
+    profileImage: getDefaultAvatarForUser(firebaseUser.uid),
     level: 1,
     streak: 0,
     totalDistance: 0,
@@ -68,6 +69,14 @@ export async function updateUserProfile(
   data: Partial<Pick<User, "nickname" | "profileImage">>
 ) {
   await updateDoc(doc(getFirebaseDb(), "users", uid), data);
+}
+
+export async function updateUserRegion(uid: string, region: UserRegion | null) {
+  if (region) {
+    await updateDoc(doc(getFirebaseDb(), "users", uid), { region });
+  } else {
+    await updateDoc(doc(getFirebaseDb(), "users", uid), { region: null });
+  }
 }
 
 export async function updateUserPreferences(

@@ -119,6 +119,28 @@ export function getYearStart(date: Date = new Date()): Date {
   return new Date(date.getFullYear(), 0, 1);
 }
 
+export function toDateString(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+export function getPeriodStartDate(period: "weekly" | "monthly" | "yearly", date?: Date): Date {
+  switch (period) {
+    case "weekly":
+      return getWeekStart(date);
+    case "monthly":
+      return getMonthStart(date);
+    case "yearly":
+      return getYearStart(date);
+  }
+}
+
+export function getPeriodStartDateString(
+  period: "weekly" | "monthly" | "yearly",
+  date?: Date
+): string {
+  return toDateString(getPeriodStartDate(period, date));
+}
+
 export function cn(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(" ");
 }

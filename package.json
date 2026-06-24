@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy:firebase": "firebase deploy --only firestore:rules,firestore:indexes",
+    "deploy:firebase:firestore": "firebase deploy --only firestore:rules,firestore:indexes"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.8",

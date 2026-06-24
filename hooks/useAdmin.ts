@@ -26,6 +26,7 @@ import {
   removeRankingExclusion,
 } from "@/services/rankingExclusionService";
 import { getRanking } from "@/services/rankingService";
+import { RankingMetric, RankingPeriod } from "@/types";
 import { getUserWorkouts } from "@/services/workoutService";
 import { getUserAttendance } from "@/services/attendanceService";
 import { getUserBadges, awardBadge, hasBadge } from "@/services/badgeService";
@@ -89,10 +90,14 @@ export function useRankingExclusionsAdmin(enabled: boolean) {
   });
 }
 
-export function useAdminRanking(period: "weekly" | "monthly", enabled: boolean) {
+export function useAdminRanking(
+  period: RankingPeriod,
+  metric: RankingMetric = "distance",
+  enabled: boolean
+) {
   return useQuery({
-    queryKey: ["admin", "ranking", period],
-    queryFn: () => getRanking(period),
+    queryKey: ["admin", "ranking", metric, period],
+    queryFn: () => getRanking({ metric, period, scope: "global" }),
     enabled,
   });
 }

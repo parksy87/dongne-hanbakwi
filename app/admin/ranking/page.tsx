@@ -18,7 +18,7 @@ import { formatDistance } from "@/lib/utils";
 export default function AdminRankingPage() {
   const { firebaseUser } = useAuthStore();
   const [period, setPeriod] = useState<"weekly" | "monthly">("weekly");
-  const { data: ranking = [] } = useAdminRanking(period, true);
+  const { data: ranking = [] } = useAdminRanking(period, "distance", true);
   const { data: exclusions = [] } = useRankingExclusionsAdmin(true);
   const { data: users = [] } = useAdminUsers(true);
   const addExclusion = useAddRankingExclusion();
