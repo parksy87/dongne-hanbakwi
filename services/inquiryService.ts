@@ -11,12 +11,13 @@ import {
   doc,
 } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
-import { Inquiry } from "@/types";
+import { Inquiry, InquiryCategory } from "@/types";
 
 export async function createInquiry(data: {
   userId: string;
   nickname: string;
   email: string;
+  category: InquiryCategory;
   title: string;
   content: string;
 }): Promise<string> {

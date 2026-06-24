@@ -1,13 +1,15 @@
 "use client";
 
 import Modal from "@/components/ui/Modal";
-import { WorkoutType } from "@/types";
+import { AttendanceRules, WorkoutType } from "@/types";
 import { WORKOUT_TYPE_LABELS } from "@/lib/constants";
+import { formatGoalLabel } from "@/lib/attendanceRules";
 
 interface WorkoutTypeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (type: WorkoutType) => void;
+  rules: AttendanceRules;
 }
 
 const workoutTypes: { type: WorkoutType; emoji: string; desc: string }[] = [
@@ -20,6 +22,7 @@ export default function WorkoutTypeModal({
   isOpen,
   onClose,
   onSelect,
+  rules,
 }: WorkoutTypeModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="운동 종류 선택">
@@ -36,6 +39,9 @@ export default function WorkoutTypeModal({
                 {WORKOUT_TYPE_LABELS[item.type]}
               </p>
               <p className="text-sm text-gray-500">{item.desc}</p>
+              <p className="text-xs text-primary font-medium mt-0.5">
+                출석 목표: {formatGoalLabel(item.type, rules)}
+              </p>
             </div>
           </button>
         ))}

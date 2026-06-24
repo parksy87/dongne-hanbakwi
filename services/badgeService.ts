@@ -7,10 +7,18 @@ import {
   orderBy,
   limit,
   serverTimestamp,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
-import { Badge } from "@/types";
-import { BADGE_DEFINITIONS } from "@/lib/constants";
+import { Badge, WorkoutType } from "@/types";
+import {
+  BADGE_DEFINITIONS,
+  BadgeDefinition,
+  BadgeProgressStats,
+  getBadgeDefinition,
+  getStatForCategory,
+} from "@/lib/badges";
 
 export async function getUserBadges(userId: string): Promise<Badge[]> {
   const q = query(collection(getFirebaseDb(), "badges"), where("userId", "==", userId));
@@ -18,7 +26,7 @@ export async function getUserBadges(userId: string): Promise<Badge[]> {
   return snapshot.docs.map((d) => d.data() as Badge);
 }
 
-export async function getAllBadges(limitCount = 200): Promise<(Badge & { id: string })[]> {
+export async function getAllBadges(limitCount = 500): Promise<(Badge & { id: string })[]> {
   const snapshot = await getDocs(
     query(collection(getFirebaseDb(), "badges"), orderBy("createdAt", "desc"), limit(limitCount))
   );
@@ -41,39 +49,71 @@ export async function awardBadge(userId: string, badgeType: string): Promise<voi
   });
 }
 
+export async function gatherBadgeStats(userId: string): Promise<BadgeProgressStats> {
+  const [attendanceSnap, workoutsSnap, userSnap] = await Promise.all([
+    getDocs(
+      query(collection(getFirebaseDb(), "attendance"), where("userId", "==", userId))
+    ),
+    getDocs(
+      query(collection(getFirebaseDb(), "workouts"), where("userId", "==", userId))
+    ),
+    getDoc(doc(getFirebaseDb(), "users", userId)),
+  ]);
+
+  const attendanceDays = new Set(
+    attendanceSnap.docs
+      .filter((d) => d.data().status === true)
+      .map((d) => d.data().date as string)
+  ).size;
+
+  let walkingCount = 0;
+  let strollingCount = 0;
+  let runningCount = 0;
+
+  workoutsSnap.docs.forEach((d) => {
+    const type = d.data().type as WorkoutType;
+    if (type === "walking") walkingCount += 1;
+    else if (type === "strolling") strollingCount += 1;
+    else if (type === "running") runningCount += 1;
+  });
+
+  const userData = userSnap.exists() ? userSnap.data() : null;
+  const totalDistance = userData?.totalDistance ?? 0;
+
+  return {
+    attendanceDays,
+    totalDistance,
+    walkingCount,
+    strollingCount,
+    runningCount,
+  };
+}
+
+function meetsThreshold(definition: BadgeDefinition, stats: BadgeProgressStats): boolean {
+  return getStatForCategory(definition.category, stats) >= definition.threshold;
+}
+
 export async function checkAndAwardBadges(
   userId: string,
-  stats: {
-    totalDistance: number;
-    totalWorkoutCount: number;
-    streak: number;
-    isFirstAttendance?: boolean;
-  }
+  stats?: BadgeProgressStats
 ): Promise<string[]> {
+  const progress = stats ?? (await gatherBadgeStats(userId));
+  const existing = await getUserBadges(userId);
+  const earnedTypes = new Set(existing.map((b) => b.badgeType));
   const awarded: string[] = [];
 
-  const checks: { type: string; condition: boolean }[] = [
-    { type: "first_step", condition: stats.totalWorkoutCount >= 1 },
-    { type: "first_attendance", condition: stats.isFirstAttendance === true },
-    { type: "steady_7", condition: stats.streak >= 7 },
-    { type: "walker_30", condition: stats.totalDistance >= 30000 },
-    { type: "runner_100", condition: stats.totalDistance >= 100000 },
-    { type: "marathoner_500", condition: stats.totalDistance >= 500000 },
-  ];
-
-  for (const check of checks) {
-    if (check.condition) {
-      const exists = await hasBadge(userId, check.type);
-      if (!exists) {
-        await awardBadge(userId, check.type);
-        awarded.push(check.type);
-      }
-    }
+  for (const definition of BADGE_DEFINITIONS) {
+    if (!meetsThreshold(definition, progress)) continue;
+    if (earnedTypes.has(definition.type)) continue;
+    await awardBadge(userId, definition.type);
+    awarded.push(definition.type);
   }
 
   return awarded;
 }
 
 export function getBadgeInfo(badgeType: string) {
-  return BADGE_DEFINITIONS.find((b) => b.type === badgeType);
+  return getBadgeDefinition(badgeType);
 }
+
+export { BADGE_DEFINITIONS };

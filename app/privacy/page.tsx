@@ -42,8 +42,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="font-bold text-base mb-2">5. 이용자 권리</h2>
             <p>
-              설정 &gt; 데이터 내보내기(CSV) 및 회원 탈퇴를 통해 기록 열람·
-              삭제를 요청할 수 있습니다.
+              설정 &gt; 회원 탈퇴를 통해 기록 삭제를 요청할 수 있습니다.
             </p>
           </section>
           <p className="text-xs text-gray-500 pt-2">시행일: 2026년 6월 24일</p>

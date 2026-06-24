@@ -1,4 +1,4 @@
-import type { InquiryStatus } from "@/types";
+import type { InquiryCategory, InquiryStatus } from "@/types";
 
 export const APP_NAME = "동네한바퀴";
 export const APP_SLOGAN = "오늘도 동네한바퀴";
@@ -25,45 +25,6 @@ export const ATTENDANCE_RULE_LIMITS = {
   maxDistanceM: 50_000,
 };
 
-export const BADGE_DEFINITIONS = [
-  {
-    type: "first_step",
-    name: "첫걸음",
-    description: "첫 운동 완료",
-    icon: "👣",
-  },
-  {
-    type: "first_attendance",
-    name: "첫 출석",
-    description: "첫 출석 완료",
-    icon: "✅",
-  },
-  {
-    type: "steady_7",
-    name: "꾸준러",
-    description: "7일 연속 출석",
-    icon: "🔥",
-  },
-  {
-    type: "walker_30",
-    name: "동네 산책러",
-    description: "30km 달성",
-    icon: "🚶",
-  },
-  {
-    type: "runner_100",
-    name: "러닝 마스터",
-    description: "100km 달성",
-    icon: "🏃",
-  },
-  {
-    type: "marathoner_500",
-    name: "동네 마라토너",
-    description: "500km 달성",
-    icon: "🏅",
-  },
-];
-
 export const DAILY_QUOTES = [
   "오늘도 밖에 나가셨군요, 정말 멋져요!",
   "한 걸음 한 걸음이 건강을 만듭니다.",
@@ -85,3 +46,45 @@ export const INQUIRY_STATUS_LABELS: Record<InquiryStatus, string> = {
   pending: "답변 대기",
   answered: "답변 완료",
 };
+
+export const INQUIRY_CATEGORIES: InquiryCategory[] = [
+  "bug",
+  "improvement",
+  "usage",
+  "other",
+];
+
+export const INQUIRY_CATEGORY_LABELS: Record<InquiryCategory, string> = {
+  bug: "오류·버그",
+  improvement: "개선·제안",
+  usage: "이용·기능 문의",
+  other: "기타",
+};
+
+export const INQUIRY_CATEGORY_PLACEHOLDERS: Record<
+  InquiryCategory,
+  { title: string; content: string }
+> = {
+  bug: {
+    title: "예: 운동 저장이 되지 않아요",
+    content:
+      "어떤 화면에서, 어떤 순서로 했을 때 문제가 생겼는지 알려주세요.",
+  },
+  improvement: {
+    title: "예: 출석 목표 표시 개선",
+    content: "불편했던 점과 원하시는 방향을 알려주세요.",
+  },
+  usage: {
+    title: "예: 출석 조건이 궁금해요",
+    content: "궁금한 기능과 현재 상황을 알려주세요.",
+  },
+  other: {
+    title: "문의 제목을 입력하세요",
+    content: "문의 내용을 자세히 입력해주세요.",
+  },
+};
+
+export function getInquiryCategoryLabel(category?: InquiryCategory): string {
+  if (!category) return INQUIRY_CATEGORY_LABELS.other;
+  return INQUIRY_CATEGORY_LABELS[category] ?? INQUIRY_CATEGORY_LABELS.other;
+}

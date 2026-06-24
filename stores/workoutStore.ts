@@ -21,6 +21,14 @@ interface WorkoutState {
   watchId: number | null;
 
   startWorkout: (type: WorkoutType) => void;
+  resumeWorkout: (data: {
+    type: WorkoutType;
+    route: RoutePoint[];
+    distance: number;
+    duration: number;
+    pace: number;
+    calories: number;
+  }) => void;
   addRoutePoint: (point: RoutePoint) => void;
   tick: () => void;
   pause: () => void;
@@ -53,6 +61,23 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
       type,
       isActive: true,
       startTime: Date.now(),
+    });
+  },
+
+  resumeWorkout: (data) => {
+    set({
+      ...initialState,
+      type: data.type,
+      route: data.route,
+      distance: data.distance,
+      duration: data.duration,
+      pace: data.pace,
+      calories: data.calories,
+      isActive: true,
+      isPaused: false,
+      startTime: Date.now() - data.duration * 1000,
+      pausedTime: 0,
+      pauseStartTime: null,
     });
   },
 

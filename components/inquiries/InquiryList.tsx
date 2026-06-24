@@ -4,7 +4,7 @@ import Link from "next/link";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { Inquiry } from "@/types";
-import { INQUIRY_STATUS_LABELS } from "@/lib/constants";
+import { INQUIRY_STATUS_LABELS, getInquiryCategoryLabel } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -47,7 +47,7 @@ export default function InquiryList({
         <Card key={inquiry.id} className="hover:bg-gray/50 transition-colors">
           <div className="flex items-start justify-between gap-3">
             <Link href={detailHref(inquiry.id)} className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <span
                   className={cn(
                     "text-xs font-bold px-2 py-0.5 rounded-full",
@@ -57,6 +57,9 @@ export default function InquiryList({
                   )}
                 >
                   {INQUIRY_STATUS_LABELS[inquiry.status] ?? "답변 대기"}
+                </span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/20 text-secondary">
+                  {getInquiryCategoryLabel(inquiry.category)}
                 </span>
                 <span className="text-xs text-gray-400">
                   {formatInquiryDate(inquiry)}

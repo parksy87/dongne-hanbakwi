@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthGuard from "@/components/layout/AuthGuard";
 import Header from "@/components/layout/Header";
@@ -8,10 +8,11 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import BadgeGrid from "@/components/mypage/BadgeGrid";
+import LevelCard from "@/components/mypage/LevelCard";
 import AvatarPicker from "@/components/mypage/AvatarPicker";
 import ProfileAvatar from "@/components/common/ProfileAvatar";
 import { useAuthStore } from "@/stores/authStore";
-import { useUserBadges } from "@/hooks/useWorkouts";
+import { useUserBadges, useLevelBreakdown, useSyncBadges } from "@/hooks/useWorkouts";
 import { useAppVersionSetting } from "@/hooks/useAppSettings";
 import { signOut } from "@/services/authService";
 import { updateUserProfile } from "@/services/userService";
@@ -32,6 +33,8 @@ export default function MyPage() {
   const router = useRouter();
   const { user, setUser, reset } = useAuthStore();
   const { data: badges = [] } = useUserBadges(user?.uid);
+  const { data: levelBreakdown, isLoading: levelLoading } = useLevelBreakdown(user?.uid);
+  const syncBadges = useSyncBadges(user?.uid);
   const appVersion = useAppVersionSetting();
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [nickname, setNickname] = useState("");
@@ -86,6 +89,20 @@ export default function MyPage() {
     }
   }
 
+  useEffect(() => {
+    if (!user?.uid) return;
+    syncBadges.mutate();
+  }, [user?.uid]);
+
+  useEffect(() => {
+    if (!levelBreakdown || !user) return;
+    if (levelBreakdown.level !== user.level) {
+      setUser({ ...user, level: levelBreakdown.level });
+    }
+  }, [levelBreakdown, user, setUser]);
+
+  const displayLevel = levelBreakdown?.level ?? user?.level ?? 1;
+
   const menuItems = [
     { icon: User, label: "프로필 수정", action: openProfileModal },
     { icon: Target, label: "출석 목표", action: () => router.push("/mypage/settings") },
@@ -111,11 +128,29 @@ export default function MyPage() {
             <div>
               <p className="text-xl font-bold text-secondary">{user?.nickname}</p>
               <p className="text-sm text-gray-500">
-                Lv.{user?.level || 1} · {joinDate} 가입
+                Lv.{displayLevel} · {joinDate} 가입
               </p>
             </div>
           </div>
         </Card>
+
+        <div className="mb-6">
+          <LevelCard
+            breakdown={
+              levelBreakdown ?? {
+                level: 1,
+                attendanceTier: 0,
+                distanceTier: 0,
+                workoutTier: 0,
+                tierSum: 0,
+                progressPercent: 0,
+                pointsToNextLevel: 1,
+                isMaxLevel: false,
+              }
+            }
+            isLoading={levelLoading || !levelBreakdown}
+          />
+        </div>
 
         <Card className="mb-6">
           <h3 className="text-base font-bold text-secondary mb-4">활동 통계</h3>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import AuthGuard from "@/components/layout/AuthGuard";
 import WorkoutMap from "@/components/map/WorkoutMap";
 import Button from "@/components/ui/Button";
@@ -21,6 +22,7 @@ import {
   getAttendancePreview,
   resolveUserAttendanceRules,
 } from "@/lib/attendanceRules";
+import { savePendingWorkout, clearPendingWorkout } from "@/lib/pendingWorkout";
 import { WORKOUT_TYPE_LABELS } from "@/lib/constants";
 import { WorkoutType, RoutePoint } from "@/types";
 
@@ -35,6 +37,7 @@ interface SummaryData {
 
 export default function WorkoutSummaryPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { user, setUser } = useAuthStore();
   const { reset } = useWorkoutStore();
   const { data: isAttendedToday = false } = useTodayAttendance(user?.uid);
@@ -50,6 +53,23 @@ export default function WorkoutSummaryPage() {
       router.replace("/");
     }
   }, [router]);
+
+  useEffect(() => {
+    if (!summary || !user) return;
+
+    const rules = resolveUserAttendanceRules(user);
+    const preview = getAttendancePreview(
+      summary.type,
+      summary.duration,
+      summary.distance,
+      rules,
+      isAttendedToday
+    );
+
+    if (!preview.eligible && !preview.alreadyAttended) {
+      savePendingWorkout(user.uid, summary);
+    }
+  }, [summary, user, isAttendedToday]);
 
   const handleSave = async () => {
     if (!summary || !user) return;
@@ -68,6 +88,9 @@ export default function WorkoutSummaryPage() {
       });
 
       setUser(result.updatedUser);
+      queryClient.invalidateQueries({ queryKey: ["badges", user.uid] });
+      queryClient.invalidateQueries({ queryKey: ["badges", "progress", user.uid] });
+      queryClient.invalidateQueries({ queryKey: ["level", "breakdown", user.uid] });
 
       if (result.attended) {
         toastSuccess("출석 완료! 오늘도 수고하셨어요.");
@@ -76,6 +99,7 @@ export default function WorkoutSummaryPage() {
       }
 
       sessionStorage.removeItem("workoutSummary");
+      clearPendingWorkout(user.uid);
       reset();
       router.replace("/");
     } catch (error) {
@@ -84,6 +108,14 @@ export default function WorkoutSummaryPage() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleContinue = () => {
+    if (!summary || !user) return;
+    savePendingWorkout(user.uid, summary);
+    sessionStorage.removeItem("workoutSummary");
+    reset();
+    router.push(`/workout?type=${summary.type}&resume=1`);
   };
 
   if (!summary) return null;
@@ -151,6 +183,18 @@ export default function WorkoutSummaryPage() {
         >
           {isSaving ? "저장 중..." : "저장하기"}
         </Button>
+
+        {!attendancePreview.eligible && !attendancePreview.alreadyAttended && (
+          <Button
+            variant="outline"
+            size="lg"
+            fullWidth
+            className="mt-3"
+            onClick={handleContinue}
+          >
+            이어하기
+          </Button>
+        )}
       </div>
     </AuthGuard>
   );

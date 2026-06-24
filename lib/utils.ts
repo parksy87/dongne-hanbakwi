@@ -16,6 +16,13 @@ export function formatDuration(seconds: number): string {
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
 
+export function formatWorkoutTimer(seconds: number): string {
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${String(hrs).padStart(2, "0")} : ${String(mins).padStart(2, "0")} : ${String(secs).padStart(2, "0")}`;
+}
+
 export function formatPace(secondsPerKm: number): string {
   if (!secondsPerKm || !isFinite(secondsPerKm)) return "--'--\"";
   const mins = Math.floor(secondsPerKm / 60);
@@ -143,8 +150,4 @@ export function getPeriodStartDateString(
 
 export function cn(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(" ");
-}
-
-export function calculateLevel(totalDistance: number): number {
-  return Math.floor(totalDistance / 10000) + 1;
 }

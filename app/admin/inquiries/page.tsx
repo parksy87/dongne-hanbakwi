@@ -7,20 +7,24 @@ import Button from "@/components/ui/Button";
 import Tabs from "@/components/ui/Tabs";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { useAdminInquiries, useAdminDeleteInquiry } from "@/hooks/useAdmin";
-import { INQUIRY_STATUS_LABELS } from "@/lib/constants";
+import { INQUIRY_STATUS_LABELS, INQUIRY_CATEGORIES, INQUIRY_CATEGORY_LABELS, getInquiryCategoryLabel } from "@/lib/constants";
 import { toastError } from "@/stores/toastStore";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 
 export default function AdminInquiriesPage() {
   const [filter, setFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const { data: inquiries = [], isLoading } = useAdminInquiries(true);
   const deleteMutation = useAdminDeleteInquiry();
 
-  const filtered =
-    filter === "all"
-      ? inquiries
-      : inquiries.filter((i) => i.status === filter);
+  const filtered = inquiries.filter((i) => {
+    if (filter !== "all" && i.status !== filter) return false;
+    if (categoryFilter !== "all" && (i.category ?? "other") !== categoryFilter) {
+      return false;
+    }
+    return true;
+  });
 
   const handleDelete = async (id: string) => {
     if (!confirm("이 문의를 삭제하시겠습니까?")) return;
@@ -43,6 +47,19 @@ export default function AdminInquiriesPage() {
         ]}
         activeKey={filter}
         onChange={setFilter}
+        className="mb-4"
+      />
+
+      <Tabs
+        items={[
+          { key: "all", label: "전체 카테고리" },
+          ...INQUIRY_CATEGORIES.map((key) => ({
+            key,
+            label: INQUIRY_CATEGORY_LABELS[key],
+          })),
+        ]}
+        activeKey={categoryFilter}
+        onChange={setCategoryFilter}
         className="mb-6"
       />
 
@@ -59,7 +76,7 @@ export default function AdminInquiriesPage() {
                   href={`/admin/inquiries/${inquiry.id}`}
                   className="min-w-0 flex-1"
                 >
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span
                       className={cn(
                         "text-xs font-bold px-2 py-0.5 rounded-full",
@@ -69,6 +86,9 @@ export default function AdminInquiriesPage() {
                       )}
                     >
                       {INQUIRY_STATUS_LABELS[inquiry.status]}
+                    </span>
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray text-gray-600">
+                      {getInquiryCategoryLabel(inquiry.category)}
                     </span>
                     <span className="text-xs text-gray-400">{inquiry.nickname}</span>
                   </div>

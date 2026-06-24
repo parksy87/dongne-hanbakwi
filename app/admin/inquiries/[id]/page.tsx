@@ -9,7 +9,7 @@ import { getInquiry } from "@/services/inquiryService";
 import { useAnswerInquiry, useAdminDeleteInquiry } from "@/hooks/useAdmin";
 import { toastSuccess, toastError } from "@/stores/toastStore";
 import { Inquiry } from "@/types";
-import { INQUIRY_STATUS_LABELS } from "@/lib/constants";
+import { INQUIRY_STATUS_LABELS, getInquiryCategoryLabel } from "@/lib/constants";
 import { ArrowLeft } from "lucide-react";
 
 export default function AdminInquiryDetailPage() {
@@ -66,7 +66,7 @@ export default function AdminInquiryDetailPage() {
 
       <AdminHeader
         title={inquiry.title}
-        description={`${INQUIRY_STATUS_LABELS[inquiry.status]} · ${inquiry.nickname} · ${inquiry.email}`}
+        description={`${getInquiryCategoryLabel(inquiry.category)} · ${INQUIRY_STATUS_LABELS[inquiry.status]} · ${inquiry.nickname} · ${inquiry.email}`}
       />
 
       <Card className="mb-4">

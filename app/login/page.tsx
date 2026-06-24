@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import FirebaseSetupNotice from "@/components/layout/FirebaseSetupNotice";
 import { signInWithGoogle } from "@/services/authService";
@@ -37,7 +38,13 @@ export default function LoginPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-pulse text-4xl">🚶</div>
+        <Image
+          src="/icons/icon-48x48.png"
+          alt=""
+          width={40}
+          height={40}
+          className="animate-pulse rounded-xl"
+        />
       </div>
     );
   }
@@ -45,9 +52,14 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-background">
       <div className="text-center mb-12">
-        <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-          <span className="text-5xl">🚶</span>
-        </div>
+        <Image
+          src="/icons/icon-192x192.png"
+          alt={APP_NAME}
+          width={96}
+          height={96}
+          className="mx-auto mb-6 rounded-3xl shadow-lg"
+          priority
+        />
         <h1 className="text-3xl font-bold text-secondary mb-2">{APP_NAME}</h1>
         <p className="text-lg text-secondary/70 mb-1">{APP_SLOGAN}</p>
         <p className="text-sm text-gray-500">{APP_SUB_SLOGAN}</p>

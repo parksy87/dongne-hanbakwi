@@ -16,11 +16,11 @@ import {
 import {
   getTodayDateString,
   getYesterdayDateString,
-  calculateLevel,
 } from "@/lib/utils";
 import { resolveUserAttendanceRules } from "@/lib/attendanceRules";
 import { getUser, updateUserStats } from "./userService";
 import { checkAndAwardBadges } from "./badgeService";
+import { syncUserLevel } from "./levelService";
 
 function checkEligibility(
   rules: ReturnType<typeof resolveUserAttendanceRules>,
@@ -132,7 +132,6 @@ export async function completeWorkout(
       totalDistance: userData.totalDistance + input.distance,
       totalDuration: userData.totalDuration + input.duration,
       totalWorkoutCount: userData.totalWorkoutCount + 1,
-      level: calculateLevel(userData.totalDistance + input.distance),
     });
   });
 
@@ -141,15 +140,11 @@ export async function completeWorkout(
     await updateUserStats(input.userId, { streak: newStreak });
   }
 
-  const updatedUser = await getUser(input.userId);
-  if (!updatedUser) throw new Error("사용자 정보를 불러오지 못했습니다.");
+  await checkAndAwardBadges(input.userId);
+  await syncUserLevel(input.userId);
 
-  await checkAndAwardBadges(input.userId, {
-    totalDistance: updatedUser.totalDistance,
-    totalWorkoutCount: updatedUser.totalWorkoutCount,
-    streak: updatedUser.streak,
-    isFirstAttendance: attended,
-  });
+  const finalUser = await getUser(input.userId);
+  if (!finalUser) throw new Error("사용자 정보를 불러오지 못했습니다.");
 
-  return { workoutId: workoutRef.id, attended, updatedUser };
+  return { workoutId: workoutRef.id, attended, updatedUser: finalUser };
 }

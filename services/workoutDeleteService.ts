@@ -15,12 +15,9 @@ import {
   checkAttendanceEligibility,
   resolveUserAttendanceRules,
 } from "@/lib/attendanceRules";
-import { calculateLevel, getTodayDateString, getYesterdayDateString } from "@/lib/utils";
+import { getTodayDateString, getYesterdayDateString, toDateString } from "@/lib/utils";
 import { getUser } from "./userService";
-
-function toDateString(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-}
+import { syncUserLevel } from "./levelService";
 
 async function calculateStreak(userId: string): Promise<number> {
   const snapshot = await getDocs(
@@ -137,9 +134,6 @@ export async function deleteUserWorkout(
       totalDistance: Math.max(0, userData.totalDistance - workout.distance),
       totalDuration: Math.max(0, userData.totalDuration - workout.duration),
       totalWorkoutCount: Math.max(0, userData.totalWorkoutCount - 1),
-      level: calculateLevel(
-        Math.max(0, userData.totalDistance - workout.distance)
-      ),
     });
   });
 
@@ -150,6 +144,8 @@ export async function deleteUserWorkout(
   const newStreak = await calculateStreak(userId);
   const { updateDoc } = await import("firebase/firestore");
   await updateDoc(userRef, { streak: newStreak });
+
+  await syncUserLevel(userId);
 
   const updated = await getUser(userId);
   if (!updated) throw new Error("사용자 정보를 불러오지 못했습니다.");

@@ -8,6 +8,13 @@ import Card from "@/components/ui/Card";
 import { useAuthStore } from "@/stores/authStore";
 import { useCreateInquiry } from "@/hooks/useInquiries";
 import { toastSuccess, toastError } from "@/stores/toastStore";
+import {
+  INQUIRY_CATEGORIES,
+  INQUIRY_CATEGORY_LABELS,
+  INQUIRY_CATEGORY_PLACEHOLDERS,
+} from "@/lib/constants";
+import { InquiryCategory } from "@/types";
+import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 
 export default function NewInquiryPage() {
@@ -15,11 +22,20 @@ export default function NewInquiryPage() {
   const { user, firebaseUser } = useAuthStore();
   const createInquiry = useCreateInquiry();
 
+  const [category, setCategory] = useState<InquiryCategory | null>(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
+  const placeholders = category
+    ? INQUIRY_CATEGORY_PLACEHOLDERS[category]
+    : INQUIRY_CATEGORY_PLACEHOLDERS.other;
+
   const handleSubmit = async () => {
     if (!user || !firebaseUser) return;
+    if (!category) {
+      toastError("카테고리를 선택해주세요.");
+      return;
+    }
     if (!title.trim()) {
       toastError("제목을 입력해주세요.");
       return;
@@ -34,6 +50,7 @@ export default function NewInquiryPage() {
         userId: firebaseUser.uid,
         nickname: user.nickname,
         email: user.email,
+        category,
         title: title.trim(),
         content: content.trim(),
       });
@@ -64,13 +81,36 @@ export default function NewInquiryPage() {
         <Card className="space-y-4 mb-6">
           <div>
             <label className="text-sm font-bold text-secondary mb-2 block">
+              카테고리
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {INQUIRY_CATEGORIES.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setCategory(key)}
+                  className={cn(
+                    "p-3 rounded-xl text-sm font-medium text-left transition-colors",
+                    category === key
+                      ? "bg-primary text-secondary"
+                      : "bg-gray text-secondary hover:bg-gray-200"
+                  )}
+                >
+                  {INQUIRY_CATEGORY_LABELS[key]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-bold text-secondary mb-2 block">
               제목
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="문의 제목을 입력하세요"
+              placeholder={placeholders.title}
               maxLength={50}
               className="w-full p-3 bg-gray rounded-xl text-secondary text-base focus:outline-none focus:ring-2 focus:ring-primary"
             />
@@ -83,7 +123,7 @@ export default function NewInquiryPage() {
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="문의 내용을 자세히 입력해주세요"
+              placeholder={placeholders.content}
               maxLength={1000}
               className="w-full p-3 bg-gray rounded-xl text-secondary text-base resize-none h-48 focus:outline-none focus:ring-2 focus:ring-primary"
             />

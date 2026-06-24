@@ -8,7 +8,6 @@ import {
 } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { User, AttendanceRules, UserRegion } from "@/types";
-import { calculateLevel } from "@/lib/utils";
 import { User as FirebaseUser } from "firebase/auth";
 import {
   getDefaultAttendanceRules,
@@ -122,8 +121,6 @@ export async function updateUserStats(
   if (stats.streak !== undefined) updateData.streak = stats.streak;
   if (stats.level !== undefined) {
     updateData.level = stats.level;
-  } else if (stats.totalDistance !== undefined) {
-    updateData.level = calculateLevel(stats.totalDistance);
   }
 
   await updateDoc(doc(getFirebaseDb(), "users", uid), updateData);

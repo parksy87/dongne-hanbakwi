@@ -7,6 +7,7 @@ import {
   getAllUsers,
   searchUsers,
   suspendUser,
+  resetUserActivity,
 } from "@/services/adminService";
 import {
   getAllInquiries,
@@ -203,6 +204,18 @@ export function useSuspendUser() {
       reason?: string;
     }) => suspendUser(uid, suspended, reason),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "users"] }),
+  });
+}
+
+export function useResetUserActivity() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (uid: string) => resetUserActivity(uid),
+    onSuccess: (_, uid) => {
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+      qc.invalidateQueries({ queryKey: ["admin", "user", uid] });
+      qc.invalidateQueries({ queryKey: ["ranking"] });
+    },
   });
 }
 

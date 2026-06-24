@@ -4,7 +4,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getUserWorkouts, getWeeklyWorkouts, getTodayWorkouts, saveWorkout } from "@/services/workoutService";
 import { deleteUserWorkout } from "@/services/workoutDeleteService";
 import { getUserAttendance, isAttendedToday } from "@/services/attendanceService";
-import { getUserBadges } from "@/services/badgeService";
+import { getUserBadges, gatherBadgeStats, checkAndAwardBadges } from "@/services/badgeService";
+import { syncUserLevel } from "@/services/levelService";
+import { getLevelBreakdown } from "@/lib/level";
 import { getRanking } from "@/services/rankingService";
 import { RankingMetric, RankingPeriod } from "@/types";
 import { WorkoutType, RoutePoint } from "@/types";
@@ -49,6 +51,40 @@ export function useUserBadges(userId: string | undefined) {
   });
 }
 
+export function useBadgeProgress(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["badges", "progress", userId],
+    queryFn: () => gatherBadgeStats(userId!),
+    enabled: !!userId,
+  });
+}
+
+export function useSyncBadges(userId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      await checkAndAwardBadges(userId!);
+      await syncUserLevel(userId!);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["badges", userId] });
+      queryClient.invalidateQueries({ queryKey: ["badges", "progress", userId] });
+      queryClient.invalidateQueries({ queryKey: ["level", "breakdown", userId] });
+    },
+  });
+}
+
+export function useLevelBreakdown(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["level", "breakdown", userId],
+    queryFn: async () => {
+      const stats = await gatherBadgeStats(userId!);
+      return getLevelBreakdown(stats);
+    },
+    enabled: !!userId,
+  });
+}
+
 export function useTodayWorkouts(userId: string | undefined) {
   return useQuery({
     queryKey: ["workouts", "today", userId],
@@ -62,11 +98,13 @@ export function useDeleteWorkout() {
   return useMutation({
     mutationFn: ({ workoutId, userId }: { workoutId: string; userId: string }) =>
       deleteUserWorkout(workoutId, userId),
-    onSuccess: (updatedUser) => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["workouts"] });
       queryClient.invalidateQueries({ queryKey: ["attendance"] });
       queryClient.invalidateQueries({ queryKey: ["ranking"] });
-      return updatedUser;
+      queryClient.invalidateQueries({ queryKey: ["badges", variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ["badges", "progress", variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ["level", "breakdown", variables.userId] });
     },
   });
 }

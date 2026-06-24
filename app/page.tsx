@@ -25,6 +25,8 @@ import {
   resolveUserAttendanceRules,
   DEFAULT_WEEKLY_ATTENDANCE_GOAL,
 } from "@/lib/attendanceRules";
+import { usePendingWorkout } from "@/hooks/usePendingWorkout";
+import PendingWorkoutBanner from "@/components/workout/PendingWorkoutBanner";
 import { WorkoutType } from "@/types";
 
 export default function HomePage() {
@@ -38,6 +40,8 @@ export default function HomePage() {
   const { data: todayWorkouts = [] } = useTodayWorkouts(user?.uid);
   const { data: attendance = [] } = useAttendance(user?.uid);
   const { data: announcements = [] } = useAnnouncements();
+
+  const { pending, clear: clearPending } = usePendingWorkout(user?.uid);
 
   const rules = resolveUserAttendanceRules(user);
   const weeklyGoal = user?.weeklyAttendanceGoal ?? DEFAULT_WEEKLY_ATTENDANCE_GOAL;
@@ -75,6 +79,15 @@ export default function HomePage() {
           todayBest={todayBest}
         />
 
+        {pending && (
+          <PendingWorkoutBanner
+            pending={pending}
+            onDiscard={() => {
+              if (confirm("이어하기 기록을 삭제할까요?")) clearPending();
+            }}
+          />
+        )}
+
         <div className="flex justify-center mb-8">
           <button
             onClick={() => setShowModal(true)}
@@ -97,6 +110,7 @@ export default function HomePage() {
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           onSelect={handleWorkoutSelect}
+          rules={rules}
         />
       </div>
     </AuthGuard>

@@ -9,6 +9,8 @@ import AttendanceCalendar from "@/components/records/AttendanceCalendar";
 import WorkoutList from "@/components/records/WorkoutList";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserWorkouts, useAttendance } from "@/hooks/useWorkouts";
+import { usePendingWorkout } from "@/hooks/usePendingWorkout";
+import PendingWorkoutBanner from "@/components/workout/PendingWorkoutBanner";
 import {
   formatDistance,
   formatDuration,
@@ -29,6 +31,7 @@ export default function RecordsPage() {
 
   const { data: workouts = [] } = useUserWorkouts(user?.uid);
   const { data: attendance = [] } = useAttendance(user?.uid);
+  const { pending, clear: clearPending } = usePendingWorkout(user?.uid);
 
   const filteredWorkouts = useMemo(() => {
     const now = new Date();
@@ -94,8 +97,29 @@ export default function RecordsPage() {
 
         <AttendanceCalendar attendance={attendance} />
 
-        <h3 className="text-base font-bold text-secondary mb-3">운동 기록</h3>
-        <WorkoutList workouts={filteredWorkouts} />
+        {pending && (
+          <PendingWorkoutBanner
+            pending={pending}
+            onDiscard={() => {
+              if (confirm("이어하기 기록을 삭제할까요?")) clearPending();
+            }}
+          />
+        )}
+
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-base font-bold text-secondary">운동 기록</h3>
+          {filteredWorkouts.length > 0 && (
+            <span className="text-xs text-gray-500 font-medium">
+              {filteredWorkouts.length}건
+            </span>
+          )}
+        </div>
+        <WorkoutList
+          workouts={filteredWorkouts}
+          totalCount={workouts.length}
+          period={period}
+          pendingWorkout={pending}
+        />
       </div>
     </AuthGuard>
   );

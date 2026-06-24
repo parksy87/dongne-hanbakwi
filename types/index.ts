@@ -130,6 +130,19 @@ export interface WorkoutSession {
   pausedTime: number;
 }
 
+/** 출석 목표 미달 시 이어하기용 로컬 저장 */
+export interface PendingWorkout {
+  userId: string;
+  type: WorkoutType;
+  route: RoutePoint[];
+  distance: number;
+  duration: number;
+  pace: number;
+  calories: number;
+  date: string;
+  updatedAt: number;
+}
+
 export interface DailyQuote {
   date: string;
   text: string;
@@ -137,11 +150,14 @@ export interface DailyQuote {
 
 export type InquiryStatus = "pending" | "answered";
 
+export type InquiryCategory = "bug" | "improvement" | "usage" | "other";
+
 export interface Inquiry {
   id: string;
   userId: string;
   nickname: string;
   email: string;
+  category?: InquiryCategory;
   title: string;
   content: string;
   status: InquiryStatus;

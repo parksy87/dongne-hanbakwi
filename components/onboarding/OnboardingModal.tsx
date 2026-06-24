@@ -20,7 +20,7 @@ export default function OnboardingModal() {
 
   const attendanceSummary = useMemo(
     () => formatAttendanceRuleSummary(resolveUserAttendanceRules(user)),
-    [user]
+    [user?.uid, user?.attendanceRules]
   );
 
   const steps = useMemo(
@@ -33,7 +33,7 @@ export default function OnboardingModal() {
       {
         emoji: "✅",
         title: "출석 인증 방법",
-        desc: `${attendanceSummary}\n\n출석 기준은 마이페이지에서 설정해 주세요.`,
+        desc: `${attendanceSummary}\n\n마이페이지에서 언제든 변경할 수 있어요.`,
       },
       {
         emoji: "📍",

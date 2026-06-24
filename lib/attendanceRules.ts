@@ -1,5 +1,7 @@
-import { ATTENDANCE_RULES, ATTENDANCE_RULE_LIMITS } from "@/lib/constants";
+import { ATTENDANCE_RULES, ATTENDANCE_RULE_LIMITS, WORKOUT_TYPE_LABELS } from "@/lib/constants";
 import { AttendanceRules, User, WorkoutType } from "@/types";
+
+const WORKOUT_TYPES: WorkoutType[] = ["walking", "strolling", "running"];
 
 export function getDefaultAttendanceRules(): AttendanceRules {
   return {
@@ -10,8 +12,14 @@ export function getDefaultAttendanceRules(): AttendanceRules {
 }
 
 export function resolveUserAttendanceRules(user: User | null | undefined): AttendanceRules {
-  if (user?.attendanceRules) return user.attendanceRules;
-  return getDefaultAttendanceRules();
+  const defaults = getDefaultAttendanceRules();
+  if (!user?.attendanceRules) return defaults;
+
+  return {
+    walking: { ...defaults.walking, ...user.attendanceRules.walking },
+    strolling: { ...defaults.strolling, ...user.attendanceRules.strolling },
+    running: { ...defaults.running, ...user.attendanceRules.running },
+  };
 }
 
 export function clampAttendanceRules(rules: AttendanceRules): AttendanceRules {
@@ -33,12 +41,20 @@ export function clampAttendanceRules(rules: AttendanceRules): AttendanceRules {
   };
 }
 
+export function formatGoalLabel(type: WorkoutType, rules: AttendanceRules): string {
+  const rule = rules[type];
+  const min = Math.round(rule.minDuration / 60);
+  return `${min}분 또는 ${rule.minDistance}m`;
+}
+
+export function formatAttendanceRulesList(rules: AttendanceRules): string[] {
+  return WORKOUT_TYPES.map(
+    (type) => `${WORKOUT_TYPE_LABELS[type]}: ${formatGoalLabel(type, rules)}`
+  );
+}
+
 export function formatAttendanceRuleSummary(rules: AttendanceRules): string {
-  const walking = rules.walking;
-  const running = rules.running;
-  const walkMin = Math.round(walking.minDuration / 60);
-  const runMin = Math.round(running.minDuration / 60);
-  return `걷기/산책: ${walkMin}분 또는 ${walking.minDistance}m\n러닝: ${runMin}분 또는 ${running.minDistance}m\n조건을 충족하면 자동 출석!`;
+  return `${formatAttendanceRulesList(rules).join("\n")}\n시간 또는 거리 중 하나만 충족하면 자동 출석!`;
 }
 
 export function checkAttendanceEligibility(
@@ -86,12 +102,6 @@ export function getAttendancePreview(
     goalDuration: rule.minDuration,
     goalDistance: rule.minDistance,
   };
-}
-
-export function formatGoalLabel(type: WorkoutType, rules: AttendanceRules): string {
-  const rule = rules[type];
-  const min = Math.round(rule.minDuration / 60);
-  return `${min}분 또는 ${rule.minDistance}m`;
 }
 
 export const DEFAULT_WEEKLY_ATTENDANCE_GOAL = 5;

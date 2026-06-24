@@ -10,7 +10,7 @@ import { useDeleteInquiry } from "@/hooks/useInquiries";
 import { getInquiry } from "@/services/inquiryService";
 import { toastError } from "@/stores/toastStore";
 import { Inquiry } from "@/types";
-import { INQUIRY_STATUS_LABELS } from "@/lib/constants";
+import { INQUIRY_STATUS_LABELS, getInquiryCategoryLabel } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 
@@ -87,7 +87,7 @@ export default function InquiryDetailPage() {
           <span className="font-medium">뒤로</span>
         </button>
 
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 mb-2 flex-wrap">
           <span
             className={cn(
               "text-xs font-bold px-2 py-1 rounded-full",
@@ -97,6 +97,9 @@ export default function InquiryDetailPage() {
             )}
           >
             {INQUIRY_STATUS_LABELS[inquiry.status]}
+          </span>
+          <span className="text-xs font-medium px-2 py-1 rounded-full bg-primary/20 text-secondary">
+            {getInquiryCategoryLabel(inquiry.category)}
           </span>
           <span className="text-sm text-gray-400">{dateStr}</span>
         </div>

@@ -5,7 +5,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { useAuthStore } from "@/stores/authStore";
 import { updateUserPreferences } from "@/services/userService";
-import { downloadCsv, exportUserDataCsv, deleteUserAccount } from "@/services/accountService";
+import { deleteUserAccount } from "@/services/accountService";
 import { toastSuccess, toastError } from "@/stores/toastStore";
 import { DEFAULT_WEEKLY_ATTENDANCE_GOAL } from "@/lib/attendanceRules";
 import { useRouter } from "next/navigation";
@@ -21,7 +21,6 @@ export default function UserPreferencesSettings() {
     user?.weeklyAttendanceGoal ?? DEFAULT_WEEKLY_ATTENDANCE_GOAL
   );
   const [isSaving, setIsSaving] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
@@ -43,20 +42,6 @@ export default function UserPreferencesSettings() {
       toastError("저장에 실패했습니다.");
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const handleExport = async () => {
-    if (!user) return;
-    setIsExporting(true);
-    try {
-      const csv = await exportUserDataCsv(user.uid);
-      downloadCsv(csv, `동네한바퀴_기록_${user.nickname}.csv`);
-      toastSuccess("데이터를 내보냈습니다.");
-    } catch {
-      toastError("내보내기에 실패했습니다.");
-    } finally {
-      setIsExporting(false);
     }
   };
 
@@ -126,19 +111,6 @@ export default function UserPreferencesSettings() {
           출석 리마인더 등 푸시 알림은 하이브리드 앱 출시 후 제공 예정입니다.
           현재는 상단 종 아이콘으로 문의 답변을 확인할 수 있습니다.
         </p>
-      </Card>
-
-      <Card className="mb-6 space-y-3">
-        <h3 className="text-base font-bold text-secondary">데이터</h3>
-        <Button
-          variant="outline"
-          size="lg"
-          fullWidth
-          onClick={handleExport}
-          disabled={isExporting}
-        >
-          {isExporting ? "내보내는 중..." : "운동·출석 기록 CSV 내보내기"}
-        </Button>
       </Card>
 
       <Card className="mb-6 space-y-3">

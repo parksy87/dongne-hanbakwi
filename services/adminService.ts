@@ -1,6 +1,7 @@
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import {
   collection,
+  deleteDoc,
   getDocs,
   getCountFromServer,
   query,
@@ -105,9 +106,35 @@ export async function suspendUser(
   suspended: boolean,
   reason?: string
 ): Promise<void> {
-  const { updateDoc } = await import("firebase/firestore");
   await updateDoc(doc(getFirebaseDb(), "users", uid), {
     isSuspended: suspended,
     suspendedReason: reason || "",
+  });
+}
+
+async function deleteUserCollection(collectionName: string, userId: string) {
+  const snap = await getDocs(
+    query(
+      collection(getFirebaseDb(), collectionName),
+      where("userId", "==", userId)
+    )
+  );
+  await Promise.all(snap.docs.map((d) => deleteDoc(d.ref)));
+}
+
+/** 운동·출석·배지·통계 초기화 (계정·문의는 유지) */
+export async function resetUserActivity(uid: string): Promise<void> {
+  await Promise.all([
+    deleteUserCollection("workouts", uid),
+    deleteUserCollection("attendance", uid),
+    deleteUserCollection("badges", uid),
+  ]);
+
+  await updateDoc(doc(getFirebaseDb(), "users", uid), {
+    level: 1,
+    streak: 0,
+    totalDistance: 0,
+    totalDuration: 0,
+    totalWorkoutCount: 0,
   });
 }

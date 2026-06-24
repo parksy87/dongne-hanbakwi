@@ -5,6 +5,7 @@ import { AttendanceRules, WorkoutType } from "@/types";
 import {
   getAttendancePreview,
   formatGoalLabel,
+  formatAttendanceRulesList,
 } from "@/lib/attendanceRules";
 import { formatDistance, formatDuration, getWeekStart } from "@/lib/utils";
 import { WORKOUT_TYPE_LABELS } from "@/lib/constants";
@@ -98,9 +99,15 @@ export default function AttendanceCard({
       )}
 
       {!isAttended && !todayBest && (
-        <p className="text-sm text-gray-500">
-          운동을 시작하면 출석 목표까지 진행 상황이 표시됩니다.
-        </p>
+        <div className="text-sm text-gray-600 bg-gray/60 rounded-xl p-3 space-y-1">
+          <p className="font-medium text-secondary mb-1">내 출석 목표</p>
+          {formatAttendanceRulesList(rules).map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+          <p className="text-xs text-gray-500 mt-1">
+            시간 또는 거리 중 하나만 충족하면 출석됩니다. 운동을 시작하면 진행 상황이 표시됩니다.
+          </p>
+        </div>
       )}
     </Card>
   );

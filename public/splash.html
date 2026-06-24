@@ -19,14 +19,15 @@
     .icon {
       width: 120px;
       height: 120px;
-      background: white;
       border-radius: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 64px;
+      overflow: hidden;
       box-shadow: 0 8px 32px rgba(60, 30, 30, 0.15);
       margin-bottom: 24px;
+    }
+    .icon img {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
     h1 {
       color: #3C1E1E;
@@ -42,7 +43,7 @@
   </style>
 </head>
 <body>
-  <div class="icon">🚶</div>
+  <div class="icon"><img src="/icons/icon-192x192.png" alt="동네한바퀴" /></div>
   <h1>동네한바퀴</h1>
   <p>오늘도 동네한바퀴</p>
 </body>

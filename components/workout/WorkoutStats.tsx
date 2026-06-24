@@ -1,6 +1,6 @@
 "use client";
 
-import { formatDistance, formatDuration, formatPace } from "@/lib/utils";
+import { formatDistance, formatWorkoutTimer, formatPace } from "@/lib/utils";
 
 interface WorkoutStatsProps {
   duration: number;
@@ -16,7 +16,7 @@ export default function WorkoutStats({
   calories,
 }: WorkoutStatsProps) {
   const stats = [
-    { label: "운동시간", value: formatDuration(duration) },
+    { label: "운동시간", value: formatWorkoutTimer(duration) },
     { label: "거리", value: formatDistance(distance) },
     { label: "평균 페이스", value: formatPace(pace) },
     { label: "칼로리", value: `${calories}kcal` },

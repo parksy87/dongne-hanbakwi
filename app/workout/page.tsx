@@ -7,7 +7,15 @@ import WorkoutStats from "@/components/workout/WorkoutStats";
 import WorkoutMap from "@/components/map/WorkoutMap";
 import Button from "@/components/ui/Button";
 import { useWorkoutStore } from "@/stores/workoutStore";
+import { useAuthStore } from "@/stores/authStore";
 import { useGeolocationTracking } from "@/hooks/useGeolocation";
+import { useTodayAttendance } from "@/hooks/useWorkouts";
+import {
+  getAttendancePreview,
+  resolveUserAttendanceRules,
+} from "@/lib/attendanceRules";
+import { formatDistance, formatWorkoutTimer } from "@/lib/utils";
+import { getPendingWorkout, clearPendingWorkout } from "@/lib/pendingWorkout";
 import { WorkoutType } from "@/types";
 import { WORKOUT_TYPE_LABELS } from "@/lib/constants";
 import WorkoutGpsNotice from "@/components/workout/WorkoutGpsNotice";
@@ -17,7 +25,9 @@ function WorkoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type") as WorkoutType;
+  const isResume = searchParams.get("resume") === "1";
 
+  const { user } = useAuthStore();
   const {
     route,
     distance,
@@ -27,18 +37,37 @@ function WorkoutContent() {
     isPaused,
     isActive,
     startWorkout,
+    resumeWorkout,
     pause,
     resume,
     stop,
   } = useWorkoutStore();
 
+  const rules = resolveUserAttendanceRules(user);
+  const { data: isAttendedToday = false } = useTodayAttendance(user?.uid);
+  const attendancePreview =
+    type && !isAttendedToday
+      ? getAttendancePreview(type, duration, distance, rules, isAttendedToday)
+      : null;
+
   useGeolocationTracking(isActive && !isPaused);
 
   useEffect(() => {
-    if (type && !isActive) {
-      startWorkout(type);
+    if (!type || isActive) return;
+
+    if (isResume && user?.uid) {
+      const pending = getPendingWorkout(user.uid);
+      if (pending && pending.type === type) {
+        resumeWorkout(pending);
+        return;
+      }
     }
-  }, [type, isActive, startWorkout]);
+
+    if (user?.uid) {
+      clearPendingWorkout(user.uid);
+    }
+    startWorkout(type);
+  }, [type, isActive, isResume, user?.uid, startWorkout, resumeWorkout]);
 
   const handleStop = () => {
     stop();
@@ -68,12 +97,31 @@ function WorkoutContent() {
           {WORKOUT_TYPE_LABELS[type]}
         </h1>
         <span className="text-sm text-gray-500">
-          {isPaused ? "일시정지" : "운동 중"}
+          {isPaused ? "일시정지" : isResume ? "이어하기" : "운동 중"}
         </span>
       </div>
 
       <div className="flex-1 p-4 space-y-4">
         <WorkoutGpsNotice />
+        {attendancePreview && !attendancePreview.eligible && (
+          <div className="bg-primary/10 border border-primary/30 rounded-2xl p-3 text-sm">
+            <p className="font-medium text-secondary">
+              출석 목표: {formatWorkoutTimer(attendancePreview.goalDuration)} 또는{" "}
+              {formatDistance(attendancePreview.goalDistance)}
+            </p>
+            <p className="text-gray-600 mt-1">
+              {!attendancePreview.durationMet &&
+                `시간 ${formatWorkoutTimer(attendancePreview.remainingDuration)} 더 · `}
+              {!attendancePreview.distanceMet &&
+                `거리 ${formatDistance(attendancePreview.remainingDistance)} 더`}
+            </p>
+          </div>
+        )}
+        {attendancePreview?.eligible && (
+          <div className="bg-success/10 border border-success/30 rounded-2xl p-3 text-sm font-medium text-success">
+            출석 목표 충족! 운동 종료 후 저장하면 출석됩니다.
+          </div>
+        )}
         <WorkoutStats
           duration={duration}
           distance={distance}

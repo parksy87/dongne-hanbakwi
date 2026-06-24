@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import { getAllBadges, getBadgeInfo } from "@/services/badgeService";
+import { getAllBadges, getBadgeInfo, BADGE_DEFINITIONS } from "@/services/badgeService";
+import { BADGE_CATEGORY_LABELS, BADGE_CATEGORY_ORDER } from "@/lib/badges";
 import { useAwardBadgeAdmin, useDeleteBadgeAdmin, useAdminUsers } from "@/hooks/useAdmin";
-import { BADGE_DEFINITIONS } from "@/lib/constants";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { AdminBadgeRecord } from "@/types";
 
@@ -64,8 +64,14 @@ export default function AdminBadgesPage() {
           className="w-full p-3 bg-gray rounded-xl"
         >
           <option value="">배지 선택</option>
-          {BADGE_DEFINITIONS.map((b) => (
-            <option key={b.type} value={b.type}>{b.icon} {b.name}</option>
+          {BADGE_CATEGORY_ORDER.map((category) => (
+            <optgroup key={category} label={BADGE_CATEGORY_LABELS[category]}>
+              {BADGE_DEFINITIONS.filter((b) => b.category === category).map((b) => (
+                <option key={b.type} value={b.type}>
+                  {b.icon} {b.name}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
         <Button size="md" fullWidth onClick={handleAward}>지급</Button>
