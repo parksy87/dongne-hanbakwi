@@ -6,18 +6,21 @@ import {
   onAuthStateChanged,
   User as FirebaseUser,
 } from "firebase/auth";
-import { getFirebaseAuth, googleProvider } from "@/lib/firebase";
+import { getFirebaseAuth, getGoogleProvider } from "@/lib/firebase";
 import { isNativeApp } from "@/lib/native";
+import { resetNativeNavigationStack } from "@/lib/nativeHistory";
 
 export async function signInWithGoogle(): Promise<FirebaseUser | null> {
   const auth = getFirebaseAuth();
+  const provider = getGoogleProvider();
 
   if (isNativeApp()) {
-    await signInWithRedirect(auth, googleProvider);
+    await signInWithRedirect(auth, provider);
     return null;
   }
 
-  const result = await signInWithPopup(auth, googleProvider);
+  provider.setCustomParameters({ prompt: "select_account" });
+  const result = await signInWithPopup(auth, provider);
   return result.user;
 }
 
@@ -25,6 +28,9 @@ export async function completeGoogleRedirectSignIn(): Promise<FirebaseUser | nul
   if (!isNativeApp()) return null;
 
   const result = await getRedirectResult(getFirebaseAuth());
+  if (result?.user) {
+    resetNativeNavigationStack("/");
+  }
   return result?.user ?? null;
 }
 

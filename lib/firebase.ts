@@ -1,5 +1,11 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
-import { getAuth, Auth, GoogleAuthProvider } from "firebase/auth";
+import {
+  initializeAuth,
+  getAuth,
+  Auth,
+  GoogleAuthProvider,
+  indexedDBLocalPersistence,
+} from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { getStorage, FirebaseStorage } from "firebase/storage";
 
@@ -38,13 +44,21 @@ let storage: FirebaseStorage | undefined;
 
 function initFirebase() {
   if (typeof window === "undefined") return;
-  if (app) return;
+  if (app && auth) return;
   if (!isFirebaseConfigured()) {
     throw new Error("Firebase 환경 변수가 설정되지 않았습니다.");
   }
 
-  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  auth = getAuth(app);
+  if (getApps().length) {
+    app = getApp();
+    auth = getAuth(app);
+  } else {
+    app = initializeApp(firebaseConfig);
+    auth = initializeAuth(app, {
+      persistence: indexedDBLocalPersistence,
+    });
+  }
+
   db = getFirestore(app);
   storage = getStorage(app);
 }
@@ -67,7 +81,8 @@ export function getFirebaseStorage(): FirebaseStorage {
   return storage;
 }
 
-export const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: "select_account" });
+export function getGoogleProvider(): GoogleAuthProvider {
+  return new GoogleAuthProvider();
+}
 
 export default app;

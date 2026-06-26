@@ -10,6 +10,7 @@ import { bootstrapAdmin } from "@/services/adminService";
 import { useAuthStore } from "@/stores/authStore";
 import { isFirebaseConfigured } from "@/lib/firebase";
 import { isNativeApp } from "@/lib/native";
+import { resetNativeNavigationStack } from "@/lib/nativeHistory";
 import { toastError } from "@/stores/toastStore";
 
 export function useAuth() {
@@ -50,6 +51,9 @@ export function useAuth() {
       unsubscribe = subscribeToAuth(async (fbUser) => {
         setFirebaseUser(fbUser);
         if (fbUser) {
+          if (isNativeApp()) {
+            resetNativeNavigationStack("/");
+          }
           try {
             await bootstrapAdmin(fbUser.uid, fbUser.email || "");
             const userData = await getOrCreateUser(fbUser);

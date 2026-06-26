@@ -5,7 +5,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { App } from "@capacitor/app";
 import { isNativeApp } from "@/lib/native";
 
-const HOME_PATHS = ["/", "/login"];
+const ROOT_PATHS = ["/", "/login"];
+
+function confirmExitApp(): boolean {
+  return window.confirm("앱을 종료하시겠습니까?");
+}
 
 export function useNativeBackButton() {
   const router = useRouter();
@@ -15,17 +19,14 @@ export function useNativeBackButton() {
     if (!isNativeApp()) return;
 
     const listener = App.addListener("backButton", () => {
-      if (!HOME_PATHS.includes(pathname) && window.history.length > 1) {
-        router.back();
+      if (ROOT_PATHS.includes(pathname)) {
+        if (confirmExitApp()) {
+          void App.exitApp();
+        }
         return;
       }
 
-      if (pathname !== "/") {
-        router.replace("/");
-        return;
-      }
-
-      void App.exitApp();
+      router.back();
     });
 
     return () => {

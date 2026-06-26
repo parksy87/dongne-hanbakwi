@@ -7,6 +7,8 @@ import Button from "@/components/ui/Button";
 import FirebaseSetupNotice from "@/components/layout/FirebaseSetupNotice";
 import { signInWithGoogle } from "@/services/authService";
 import { useAuthStore } from "@/stores/authStore";
+import { isNativeApp } from "@/lib/native";
+import { resetNativeNavigationStack } from "@/lib/nativeHistory";
 import { APP_NAME, APP_SLOGAN, APP_SUB_SLOGAN } from "@/lib/constants";
 import { toastError } from "@/stores/toastStore";
 
@@ -16,6 +18,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
+      if (isNativeApp()) {
+        resetNativeNavigationStack("/");
+      }
       router.replace("/");
     }
   }, [isLoading, isAuthenticated, router]);
