@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { useAuth } from "@/hooks/useAuth";
-import { useNativeBackButton } from "@/hooks/useNativeBackButton";
+import { useNativeBackButton, useNativeHistoryGuard } from "@/hooks/useNativeBackButton";
 import { useAuthStore } from "@/stores/authStore";
 import { isNativeApp } from "@/lib/native";
 import ToastContainer from "@/components/ui/ToastContainer";
@@ -16,6 +16,7 @@ import AppSplash from "@/components/layout/AppSplash";
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   useAuth();
   useNativeBackButton();
+  useNativeHistoryGuard();
   return <>{children}</>;
 }
 

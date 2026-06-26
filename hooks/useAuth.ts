@@ -10,7 +10,7 @@ import { bootstrapAdmin } from "@/services/adminService";
 import { useAuthStore } from "@/stores/authStore";
 import { isFirebaseConfigured } from "@/lib/firebase";
 import { isNativeApp } from "@/lib/native";
-import { resetNativeNavigationStack } from "@/lib/nativeHistory";
+import { resetNativeNavigationStack, sealNativeRootRoute } from "@/lib/nativeHistory";
 
 export function useAuth() {
   const {
@@ -45,11 +45,12 @@ export function useAuth() {
       unsubscribe = subscribeToAuth(async (fbUser) => {
         setFirebaseUser(fbUser);
         if (fbUser) {
-          if (
-            isNativeApp() &&
-            window.location.pathname.startsWith("/login")
-          ) {
-            resetNativeNavigationStack("/");
+          if (isNativeApp()) {
+            if (window.location.pathname.startsWith("/login")) {
+              resetNativeNavigationStack("/");
+            } else if (window.location.pathname === "/") {
+              sealNativeRootRoute("/");
+            }
           }
           try {
             await bootstrapAdmin(fbUser.uid, fbUser.email || "");

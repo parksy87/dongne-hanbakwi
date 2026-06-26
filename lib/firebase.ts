@@ -11,6 +11,11 @@ import {
 import { getFirestore, Firestore } from "firebase/firestore";
 import { getStorage, FirebaseStorage } from "firebase/storage";
 
+function isNativeWebView(): boolean {
+  if (typeof window === "undefined") return false;
+  return /Capacitor/i.test(window.navigator.userAgent);
+}
+
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -57,8 +62,12 @@ function initFirebase() {
   } else {
     app = initializeApp(firebaseConfig);
     try {
+      const persistence = isNativeWebView()
+        ? [browserLocalPersistence, indexedDBLocalPersistence]
+        : [indexedDBLocalPersistence, browserLocalPersistence];
+
       auth = initializeAuth(app, {
-        persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+        persistence,
         popupRedirectResolver: browserPopupRedirectResolver,
       });
     } catch {
