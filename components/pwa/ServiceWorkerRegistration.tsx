@@ -14,12 +14,6 @@ export default function ServiceWorkerRegistration() {
           )
           .catch((err) => console.error("SW unregister failed:", err));
       }
-      if ("caches" in window) {
-        caches
-          .keys()
-          .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
-          .catch((err) => console.error("Cache clear failed:", err));
-      }
       return;
     }
 

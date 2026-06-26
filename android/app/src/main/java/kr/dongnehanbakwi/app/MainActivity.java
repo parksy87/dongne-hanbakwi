@@ -1,23 +1,5 @@
 package kr.dongnehanbakwi.app;
 
-import android.os.Bundle;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 import com.getcapacitor.BridgeActivity;
 
-public class MainActivity extends BridgeActivity {
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        WebView webView = getBridge().getWebView();
-        if (webView != null) {
-            webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-            webView.clearCache(true);
-        }
-    }
-}
+public class MainActivity extends BridgeActivity {}

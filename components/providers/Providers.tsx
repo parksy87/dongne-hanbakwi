@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useNativeBackButton } from "@/hooks/useNativeBackButton";
 import { useAuthStore } from "@/stores/authStore";
 import ToastContainer from "@/components/ui/ToastContainer";
 import MaintenanceGuard from "@/components/layout/MaintenanceGuard";
@@ -11,6 +12,7 @@ import OnboardingModal from "@/components/onboarding/OnboardingModal";
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   useAuth();
+  useNativeBackButton();
   return <>{children}</>;
 }
 
