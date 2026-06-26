@@ -6,6 +6,7 @@ import {
   GoogleAuthProvider,
   indexedDBLocalPersistence,
   browserLocalPersistence,
+  browserPopupRedirectResolver,
 } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { getStorage, FirebaseStorage } from "firebase/storage";
@@ -58,6 +59,7 @@ function initFirebase() {
     try {
       auth = initializeAuth(app, {
         persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+        popupRedirectResolver: browserPopupRedirectResolver,
       });
     } catch {
       auth = getAuth(app);
