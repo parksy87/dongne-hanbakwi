@@ -6,7 +6,8 @@ import type { CapacitorConfig } from "@capacitor/cli";
  *
  * 배포 URL 고정 시 capacitor.config.ts 의 server.url 에 프로덕션 주소 입력
  */
-const serverUrl = process.env.CAPACITOR_SERVER_URL;
+const serverUrl =
+  process.env.CAPACITOR_SERVER_URL ?? "https://dongne-hanbakwi.vercel.app";
 
 const config: CapacitorConfig = {
   appId: "kr.dongnehanbakwi.app",
