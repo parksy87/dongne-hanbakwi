@@ -5,6 +5,7 @@ import {
   Auth,
   GoogleAuthProvider,
   indexedDBLocalPersistence,
+  browserLocalPersistence,
 } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { getStorage, FirebaseStorage } from "firebase/storage";
@@ -54,9 +55,13 @@ function initFirebase() {
     auth = getAuth(app);
   } else {
     app = initializeApp(firebaseConfig);
-    auth = initializeAuth(app, {
-      persistence: indexedDBLocalPersistence,
-    });
+    try {
+      auth = initializeAuth(app, {
+        persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+      });
+    } catch {
+      auth = getAuth(app);
+    }
   }
 
   db = getFirestore(app);

@@ -11,7 +11,6 @@ import { useAuthStore } from "@/stores/authStore";
 import { isFirebaseConfigured } from "@/lib/firebase";
 import { isNativeApp } from "@/lib/native";
 import { resetNativeNavigationStack } from "@/lib/nativeHistory";
-import { toastError } from "@/stores/toastStore";
 
 export function useAuth() {
   const {
@@ -40,12 +39,7 @@ export function useAuth() {
 
     const initAuth = async () => {
       if (isNativeApp()) {
-        try {
-          await completeGoogleRedirectSignIn();
-        } catch (error) {
-          console.error("Google redirect sign-in failed:", error);
-          toastError("로그인에 실패했습니다. 다시 시도해주세요.");
-        }
+        await completeGoogleRedirectSignIn();
       }
 
       unsubscribe = subscribeToAuth(async (fbUser) => {

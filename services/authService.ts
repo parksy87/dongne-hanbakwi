@@ -27,11 +27,16 @@ export async function signInWithGoogle(): Promise<FirebaseUser | null> {
 export async function completeGoogleRedirectSignIn(): Promise<FirebaseUser | null> {
   if (!isNativeApp()) return null;
 
-  const result = await getRedirectResult(getFirebaseAuth());
-  if (result?.user) {
-    resetNativeNavigationStack("/");
+  try {
+    const result = await getRedirectResult(getFirebaseAuth());
+    if (result?.user) {
+      resetNativeNavigationStack("/");
+    }
+    return result?.user ?? null;
+  } catch (error) {
+    console.warn("Google redirect result unavailable:", error);
+    return null;
   }
-  return result?.user ?? null;
 }
 
 export async function signOut() {
