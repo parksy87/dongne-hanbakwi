@@ -17,9 +17,9 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif;
     }
     .icon {
-      width: 120px;
-      height: 120px;
-      border-radius: 28px;
+      width: 96px;
+      height: 96px;
+      border-radius: 24px;
       overflow: hidden;
       box-shadow: 0 8px 32px rgba(60, 30, 30, 0.15);
       margin-bottom: 24px;
@@ -31,20 +31,33 @@
     }
     h1 {
       color: #3C1E1E;
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 800;
-      margin-bottom: 8px;
+      margin-bottom: 32px;
     }
-    p {
-      color: #3C1E1E;
-      opacity: 0.7;
-      font-size: 14px;
+    .progress {
+      width: 192px;
+      height: 6px;
+      background: rgba(60, 30, 30, 0.2);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      width: 40%;
+      height: 100%;
+      background: #3C1E1E;
+      border-radius: 999px;
+      animation: splash-progress 1.2s ease-in-out infinite;
+    }
+    @keyframes splash-progress {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(320%); }
     }
   </style>
 </head>
 <body>
   <div class="icon"><img src="/icons/icon-192x192.png" alt="동네한바퀴" /></div>
   <h1>동네한바퀴</h1>
-  <p>오늘도 동네한바퀴</p>
+  <div class="progress"><div class="progress-bar"></div></div>
 </body>
 </html>

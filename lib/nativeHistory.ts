@@ -6,5 +6,13 @@ import { isNativeApp } from "@/lib/native";
 export function resetNativeNavigationStack(path = "/") {
   if (!isNativeApp() || typeof window === "undefined") return;
 
-  window.history.replaceState(null, "", path);
+  const { pathname, search, hash } = window.location;
+  const target = path.startsWith("/") ? path : `/${path}`;
+
+  if (`${pathname}${search}${hash}` === target) {
+    window.history.replaceState({ appRoot: true }, "", target);
+    return;
+  }
+
+  window.location.replace(target);
 }

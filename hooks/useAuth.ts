@@ -45,7 +45,10 @@ export function useAuth() {
       unsubscribe = subscribeToAuth(async (fbUser) => {
         setFirebaseUser(fbUser);
         if (fbUser) {
-          if (isNativeApp()) {
+          if (
+            isNativeApp() &&
+            window.location.pathname.startsWith("/login")
+          ) {
             resetNativeNavigationStack("/");
           }
           try {

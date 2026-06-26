@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Home, Calendar, Trophy, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/constants";
+import { useAuthStore } from "@/stores/authStore";
 
 const iconMap = {
   Home,
@@ -15,9 +16,10 @@ const iconMap = {
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { isLoading } = useAuthStore();
 
   const hiddenPaths = ["/login", "/workout", "/admin"];
-  if (hiddenPaths.some((p) => pathname.startsWith(p))) return null;
+  if (isLoading || hiddenPaths.some((p) => pathname.startsWith(p))) return null;
 
   return (
     <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t border-gray-200 shadow-nav safe-bottom z-40">

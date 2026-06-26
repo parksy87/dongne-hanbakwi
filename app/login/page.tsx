@@ -20,8 +20,9 @@ export default function LoginPage() {
     if (!isLoading && isAuthenticated) {
       if (isNativeApp()) {
         resetNativeNavigationStack("/");
+      } else {
+        router.replace("/");
       }
-      router.replace("/");
     }
   }, [isLoading, isAuthenticated, router]);
 
@@ -34,7 +35,11 @@ export default function LoginPage() {
     try {
       const signedInUser = await signInWithGoogle();
       if (signedInUser) {
-        router.replace("/");
+        if (isNativeApp()) {
+          resetNativeNavigationStack("/");
+        } else {
+          router.replace("/");
+        }
       }
     } catch (error) {
       console.error("Login failed:", error);
@@ -42,18 +47,8 @@ export default function LoginPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Image
-          src="/icons/icon-48x48.png"
-          alt=""
-          width={40}
-          height={40}
-          className="animate-pulse rounded-xl"
-        />
-      </div>
-    );
+  if (isLoading || isAuthenticated) {
+    return null;
   }
 
   return (
