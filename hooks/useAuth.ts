@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import {
   subscribeToAuth,
-  completeGoogleRedirectSignIn,
 } from "@/services/authService";
 import { getOrCreateUser } from "@/services/userService";
 import { bootstrapAdmin } from "@/services/adminService";
@@ -38,10 +37,6 @@ export function useAuth() {
     let unsubscribe: (() => void) | undefined;
 
     const initAuth = async () => {
-      if (isNativeApp()) {
-        await completeGoogleRedirectSignIn();
-      }
-
       unsubscribe = subscribeToAuth(async (fbUser) => {
         setFirebaseUser(fbUser);
         if (fbUser) {

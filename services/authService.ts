@@ -1,45 +1,52 @@
 import {
-  getRedirectResult,
   signInWithPopup,
-  signInWithRedirect,
+  signInWithCredential,
+  GoogleAuthProvider,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   User as FirebaseUser,
 } from "firebase/auth";
+import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
 import { getFirebaseAuth, getGoogleProvider } from "@/lib/firebase";
 import { isNativeApp } from "@/lib/native";
 import { resetNativeNavigationStack } from "@/lib/nativeHistory";
 
-export async function signInWithGoogle(): Promise<FirebaseUser | null> {
-  const auth = getFirebaseAuth();
-  const provider = getGoogleProvider();
+async function signInWithGoogleNative(): Promise<FirebaseUser> {
+  const result = await FirebaseAuthentication.signInWithGoogle();
+  const idToken = result.credential?.idToken;
 
-  if (isNativeApp()) {
-    await signInWithRedirect(auth, provider);
-    return null;
+  if (!idToken) {
+    throw new Error("Google idToken을 받지 못했습니다.");
   }
 
+  const auth = getFirebaseAuth();
+  const credential = GoogleAuthProvider.credential(idToken);
+  const userCredential = await signInWithCredential(auth, credential);
+
+  resetNativeNavigationStack("/");
+  return userCredential.user;
+}
+
+export async function signInWithGoogle(): Promise<FirebaseUser | null> {
+  if (isNativeApp()) {
+    return signInWithGoogleNative();
+  }
+
+  const auth = getFirebaseAuth();
+  const provider = getGoogleProvider();
   provider.setCustomParameters({ prompt: "select_account" });
   const result = await signInWithPopup(auth, provider);
   return result.user;
 }
 
-export async function completeGoogleRedirectSignIn(): Promise<FirebaseUser | null> {
-  if (!isNativeApp()) return null;
-
-  try {
-    const result = await getRedirectResult(getFirebaseAuth());
-    if (result?.user) {
-      resetNativeNavigationStack("/");
-    }
-    return result?.user ?? null;
-  } catch (error) {
-    console.warn("Google redirect result unavailable:", error);
-    return null;
-  }
-}
-
 export async function signOut() {
+  if (isNativeApp()) {
+    try {
+      await FirebaseAuthentication.signOut();
+    } catch (error) {
+      console.warn("Native sign out failed:", error);
+    }
+  }
   await firebaseSignOut(getFirebaseAuth());
 }
 
