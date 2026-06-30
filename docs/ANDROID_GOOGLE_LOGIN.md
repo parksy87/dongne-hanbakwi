@@ -59,6 +59,9 @@ $env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
    android/app/google-services.json
    ```
 
+   > 이 파일은 **Git에 커밋하지 마세요.** 저장소에는 `google-services.json.example`만 포함됩니다.
+   > 로컬에서 example을 복사한 뒤 Firebase에서 받은 값으로 교체하거나, 다운로드한 파일을 그대로 두면 됩니다.
+
 4. APK 재빌드:
 
    ```powershell
